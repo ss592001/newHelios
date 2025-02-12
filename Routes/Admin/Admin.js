@@ -42,35 +42,91 @@ app.get('/getAllUsers', async (req, res, next) => {
         })
 })
 
-app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
-    if (!req.file) {
-        return res.status(400).send('No file uploaded');
-    }
+// app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
+//     if (!req.file) {
+//         return res.status(400).send('No file uploaded');
+//     }
 
-    const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
-    handleExtractStart(pdfFilePath, res);
-});
+//     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
+//     handleExtractStart(pdfFilePath, res);
+// });
 
-const handleExtractStart = async (file, res) => {
-    try {
-        const pdfPath = file;
-        const dataBuffer = await fs.readFile(pdfPath);
+// const handleExtractStart = async (file, res) => {
+//     try {
+//         const pdfPath = file;
+//         const dataBuffer = await fs.readFile(pdfPath);
 
-        const pdfDoc = await PDFDocument.load(dataBuffer);
-        const data = await pdf(dataBuffer);
-        extractMCQs(data.text, pdfDoc).then(result => {
-            res.status(200).json(result);
-        }).catch(error => {
-            console.log(error)
-        })
-    } catch (error) {
-        console.error("Error processing PDF:", error);
-        res.status(500).send("Error processing PDF");
-    }
-}
+//         const pdfDoc = await PDFDocument.load(dataBuffer);
+//         const data = await pdf(dataBuffer);
+//         extractMCQs(data.text, pdfDoc).then(result => {
+//             res.status(200).json(result);
+//         }).catch(error => {
+//             console.log(error)
+//         })
+//     } catch (error) {
+//         console.error("Error processing PDF:", error);
+//         res.status(500).send("Error processing PDF");
+//     }
+// }
+
+// // async function extractMCQs(text, pdfDoc) {
+// //     const mcqPattern = /(\d+\.\s+.*?)(?=\d+\.|\Z)/gs;
+// //     let mcqs = [];
+// //     let match;
+
+// //     while ((match = mcqPattern.exec(text)) !== null) {
+// //         const questionBlock = match[1].trim();
+// //         console.log('block', questionBlock);
+// //         const questionData = await processQuestionBlock(questionBlock, pdfDoc);
+// //         mcqs.push(questionData);
+// //     }
+
+// //     return mcqs;
+// // }
+
+// // async function processQuestionBlock(block, pdfDoc) {
+// //     const lines = block.split('\n').map(line => line.trim());
+// //     let question = '';
+// //     const options = [];
+// //     let answer = '';
+// //     let explanation = '';
+// //     let explanationStart = false;
+
+// //     const optionPattern = /^[A-Z]\.\s+/i;
+
+// //     for (let i = 0; i < lines.length; i++) {
+// //         const line = lines[i];
+// //         if (line.startsWith('Answer:')) {
+// //             answer = line.split('Answer:')[1].trim();
+// //         } else if (line.startsWith('Explanation:')) {
+// //             explanationStart = true;
+// //             explanation += line.split('Explanation:')[1].trim() + ' ';
+// //         } else if (explanationStart) {
+// //             explanation += line + ' ';
+// //         } else if (optionPattern.test(line)) {
+// //             options.push(line);
+// //         } else {
+// //             if (question === '') {
+// //                 question += line;
+// //             }
+// //         }
+// //     }
+// //     question = question.trim();
+// //     return {
+// //         id: (Math.random() * 1000).toFixed(),
+// //         question,
+// //         options,
+// //         answer,
+// //         explanation: explanation.trim(),
+// //         diagram: ''
+// //     };
+// // }
+
+
 
 // async function extractMCQs(text, pdfDoc) {
-//     const mcqPattern = /(\d+\.\s+.*?)(?=\d+\.|\Z)/gs;
+//     // Updated pattern to capture questions more comprehensively
+//     const mcqPattern = /(\d+\.\s+[\s\S]+?)(?=\n\d+\.\s|\n*$)/g;
 //     let mcqs = [];
 //     let match;
 
@@ -96,6 +152,8 @@ const handleExtractStart = async (file, res) => {
 
 //     for (let i = 0; i < lines.length; i++) {
 //         const line = lines[i];
+
+//         // Match answer and explanation sections more accurately
 //         if (line.startsWith('Answer:')) {
 //             answer = line.split('Answer:')[1].trim();
 //         } else if (line.startsWith('Explanation:')) {
@@ -106,15 +164,13 @@ const handleExtractStart = async (file, res) => {
 //         } else if (optionPattern.test(line)) {
 //             options.push(line);
 //         } else {
-//             if (question === '') {
-//                 question += line;
-//             }
+//             question += line + ' ';
 //         }
 //     }
-//     question = question.trim();
+
 //     return {
 //         id: (Math.random() * 1000).toFixed(),
-//         question,
+//         question: question.trim(),
 //         options,
 //         answer,
 //         explanation: explanation.trim(),
@@ -122,17 +178,44 @@ const handleExtractStart = async (file, res) => {
 //     };
 // }
 
+app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded');
+    }
 
+    const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
+    handleExtractStart(pdfFilePath, res);
+});
 
+const handleExtractStart = async (file, res) => {
+    try {
+        const pdfPath = file;
+        const dataBuffer = await fs.readFile(pdfPath);
+        const pdfDoc = await PDFDocument.load(dataBuffer);
+        const data = await pdf(dataBuffer);
+
+        // Extract MCQs with math enhancement
+        const extractedMCQs = await extractMCQs(data.text, pdfDoc);
+
+        res.status(200).json(extractedMCQs);
+    } catch (error) {
+        console.error("Error processing PDF:", error);
+        res.status(500).send("Error processing PDF");
+    }
+};
+
+// Function to extract MCQs while preserving math formatting
 async function extractMCQs(text, pdfDoc) {
-    // Updated pattern to capture questions more comprehensively
     const mcqPattern = /(\d+\.\s+[\s\S]+?)(?=\n\d+\.\s|\n*$)/g;
     let mcqs = [];
     let match;
 
     while ((match = mcqPattern.exec(text)) !== null) {
-        const questionBlock = match[1].trim();
-        console.log('block', questionBlock);
+        let questionBlock = match[1].trim();
+
+        // Enhance the math formatting
+        questionBlock = enhanceMathFormatting(questionBlock);
+
         const questionData = await processQuestionBlock(questionBlock, pdfDoc);
         mcqs.push(questionData);
     }
@@ -140,31 +223,54 @@ async function extractMCQs(text, pdfDoc) {
     return mcqs;
 }
 
+// Function to process individual MCQs and extract properly formatted math expressions
 async function processQuestionBlock(block, pdfDoc) {
-    const lines = block.split('\n').map(line => line.trim());
+    const lines = block.split('\n' || '?').map(line => line.trim());
     let question = '';
     const options = [];
     let answer = '';
     let explanation = '';
     let explanationStart = false;
+    let hasQuestionFinished = false;
 
-    const optionPattern = /^[A-Z]\.\s+/i;
+    const optionPattern = /^[A-D]\.\s+/i;
 
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        let line = lines[i];
 
-        // Match answer and explanation sections more accurately
+        // Enhance math expressions in each line
+        line = enhanceMathFormatting(line);
+
         if (line.startsWith('Answer:')) {
+            // hasQuestionFinished = true;
             answer = line.split('Answer:')[1].trim();
         } else if (line.startsWith('Explanation:')) {
             explanationStart = true;
+            // hasQuestionFinished = true;
             explanation += line.split('Explanation:')[1].trim() + ' ';
         } else if (explanationStart) {
             explanation += line + ' ';
-        } else if (optionPattern.test(line)) {
+        }
+        // else if (optionPattern.test(line)) {
+        //     options.push(line);
+        //     hasQuestionFinished = true;
+        // } 
+        else if (line.startsWith('A.')) {
             options.push(line);
-        } else {
-            question += line + ' ';
+        }
+        else if (line.startsWith('B.')) {
+            options.push(line);
+        }
+        else if (line.startsWith('C.')) {
+            options.push(line);
+        }
+        else if (line.startsWith('D.')) {
+            options.push(line);
+        }
+        else {
+            if (!hasQuestionFinished) {
+                question += line + ' ';
+            }
         }
     }
 
@@ -177,6 +283,130 @@ async function processQuestionBlock(block, pdfDoc) {
         diagram: ''
     };
 }
+
+// Function to enhance math formatting in the extracted text
+const enhanceMathFormatting = (text) => {
+    const superscriptMap = {
+        '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+        '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
+    };
+
+    const toSuperscript = (match, base, exponent) => {
+        return base + [...exponent].map(digit => superscriptMap[digit] || digit).join('');
+    };
+    const mathPatterns = [
+        { regex: /푎/g, replacement: 'a' },
+        { regex: /푏/g, replacement: 'b' },
+        { regex: /푐/g, replacement: 'c' },
+        { regex: /푑/g, replacement: 'd' },
+        { regex: /푒/g, replacement: 'e' },
+        { regex: /푓/g, replacement: 'f' },
+        { regex: /푔/g, replacement: 'g' },
+        { regex: /푕/g, replacement: 'h' },
+        { regex: /푖/g, replacement: 'i' },
+        { regex: /푗/g, replacement: 'j' },
+        { regex: /푘/g, replacement: 'k' },
+        { regex: /푙/g, replacement: 'l' },
+        { regex: /푚/g, replacement: 'm' },
+        { regex: /푛/g, replacement: 'n' },
+        { regex: /푂/g, replacement: 'o' },
+        { regex: /푝/g, replacement: 'p' },
+        { regex: /푞/g, replacement: 'q' },
+        { regex: /푟/g, replacement: 'r' },
+        { regex: /푠/g, replacement: 's' },
+        { regex: /푡/g, replacement: 't' },
+        { regex: /푢/g, replacement: 'u' },
+        { regex: /푣/g, replacement: 'v' },
+        { regex: /푤/g, replacement: 'w' },
+        { regex: /푥/g, replacement: 'x' },
+        { regex: /푦/g, replacement: 'y' },
+        { regex: /푧/g, replacement: 'z' },
+        { regex: /퐀/g, replacement: 'A' },
+        { regex: /퐁/g, replacement: 'B' },
+        { regex: /퐂/g, replacement: 'C' },
+        { regex: /퐃/g, replacement: 'D' },
+        { regex: /퐄/g, replacement: 'E' },
+        { regex: /퐅/g, replacement: 'F' },
+        { regex: /퐆/g, replacement: 'G' },
+        { regex: /퐇/g, replacement: 'H' },
+        { regex: /퐈/g, replacement: 'I' },
+        { regex: /퐉/g, replacement: 'J' },
+        { regex: /퐊/g, replacement: 'K' },
+        { regex: /퐋/g, replacement: 'L' },
+        { regex: /퐌/g, replacement: 'M' },
+        { regex: /퐍/g, replacement: 'N' },
+        { regex: /퐎/g, replacement: 'O' },
+        { regex: /퐏/g, replacement: 'P' },
+        { regex: /퐐/g, replacement: 'Q' },
+        { regex: /퐑/g, replacement: 'R' },
+        { regex: /퐒/g, replacement: 'S' },
+        { regex: /퐓/g, replacement: 'T' },
+        { regex: /퐔/g, replacement: 'U' },
+        { regex: /퐕/g, replacement: 'V' },
+        { regex: /퐖/g, replacement: 'W' },
+        { regex: /퐗/g, replacement: 'X' },
+        { regex: /퐘/g, replacement: 'Y' },
+        { regex: /퐙/g, replacement: 'Z' },
+        { regex: /(\d+)\s*\/\s*(\d+)([a-zA-Z])/g, replacement: '$1/$2$3' },
+        { regex: /(\d+)\s*\n?\s*\/\s*\n?\s*(\d+)/g, replacement: '$1/$2' },
+        { regex: /(\d+)\s*\/\s*(\d+)/g, replacement: '$1/$2' },
+        { regex: /(\d+[a-zA-Z]*)\s*\/\s*(\d+)/g, replacement: '$1/$2' },
+        { regex: /x\s*=\s*(-?\d+)\s*\/\s*(\d+)\s*±\s*√(\d+)\s*\/\s*(\d+)/g, replacement: 'x = $1/$2 ± √$3/$4' },
+        { regex: /(\d*[a-zA-Z])\s*\/\s*(\d+)\s*\+\s*(\d+)\s*\/\s*(\d*[a-zA-Z])\s*=\s*(\d*[a-zA-Z])/g, replacement: '$1/$2 + $3/$4 = $5' },
+        { regex: /(\d+[a-zA-Z])\s*\/\s*(\d+)\s*\+\s*(\d+)\s*\/\s*(\d+[a-zA-Z])\s*=\s*(\d+[a-zA-Z])/g, replacement: '$1/$2 + $3/$4 = $5' },
+        { regex: /sqrt\((.*?)\)/g, replacement: '√($1)' },
+        { regex: /<=/g, replacement: '≤' },
+        { regex: />=/g, replacement: '≥' },
+        { regex: /!=/g, replacement: '≠' },
+        { regex: /\bsum\((.*?)\)/g, replacement: '∑$1' },
+        { regex: /\bintegral\((.*?)\)/g, replacement: '∫$1 dx' },
+        { regex: /\+-/g, replacement: '±' },
+        { regex: /(\d+)\s*\*\s*(\d+)/g, replacement: '$1 × $2' },
+        { regex: /(\d+)\s*degrees/g, replacement: '$1°' },
+        { regex: /([a-zA-Z])\s*\^\s*(\d+)/g, replacement: toSuperscript },
+        { regex: /(\d+)\s*\^\s*(\d+)/g, replacement: toSuperscript },
+        { regex: /푥\s*2/g, replacement: 'x²' },  // Fix x 2 → x²
+        { regex: /푥\s*\^2/g, replacement: 'x²' }, // Fix x ^2 → x²
+        { regex: /sqrt\((.*?)\)/g, replacement: '√($1)' }, // sqrt(x) → √(x)
+        { regex: /\((.*?)\)\s*=\s*0/g, replacement: '($1) = 0' }, // Ensure quadratic equations are preserved
+        { regex: /([a-zA-Z])\s*\^\s*(\d+)/g, replacement: '$1^$2' }, // Fix exponent notation
+        { regex: /±\s*√\s*(\d+)/g, replacement: '± √$1' }, // Fix ± sqrt notation
+        { regex: /(\d+)\s*\/\s*(\d+)/g, replacement: '$1/$2' }, // Fix fractions
+        { regex: /([a-zA-Z])\s*\^\s*(\d+)/g, replacement: '$1$2'.sup() },
+        { regex: /(\d+)\s*\^\s*(\d+)/g, replacement: '$1$2'.sup() },
+        { regex: /sqrt\((.*?)\)/g, replacement: '√$1' },
+        { regex: /√\s*\(?(\d+)\)?/g, replacement: '√$1' }, // Handles cases like √ (9)
+        { regex: /(\d+)\s*\/\s*(\d+)/g, replacement: '$1/$2' }, // Properly format fractions
+        { regex: /([a-zA-Z])\s*2/g, replacement: '$1²' },
+        { regex: /<=/g, replacement: '≤' },
+        { regex: />=/g, replacement: '≥' },
+        { regex: /!=/g, replacement: '≠' },
+        { regex: /\balpha\b/gi, replacement: 'α' },
+        { regex: /\bbeta\b/gi, replacement: 'β' },
+        { regex: /\bgamma\b/gi, replacement: 'γ' },
+        { regex: /\btheta\b/gi, replacement: 'θ' },
+        { regex: /\blambda\b/gi, replacement: 'λ' },
+        { regex: /\bpi\b/gi, replacement: 'π' },
+        { regex: /\bomega\b/gi, replacement: 'ω' },
+        { regex: /\bsum\((.*?)\)/g, replacement: '∑$1' },
+        { regex: /\bintegral\((.*?)\)/g, replacement: '∫$1 dx' },
+        { regex: /\+-/g, replacement: '±' },
+        { regex: /\//g, replacement: '/' },
+        { regex: /(\d+)\s*\*\s*(\d+)/g, replacement: '$1 × $2' },
+        { regex: /(\d+)\s*degrees/g, replacement: '$1°' },
+        { regex: /(\d+)\s*\*\s*(\d+)/g, replacement: '$1 × $2' },
+        { regex: /(\d+)\s*degrees/g, replacement: '$1°' },
+
+
+    ];
+
+    mathPatterns.forEach(({ regex, replacement }) => {
+        text = text.replace(regex, replacement);
+    });
+
+    return text;
+};
+
 
 
 async function extractDiagramFromPDF(pdfDoc, question) {
