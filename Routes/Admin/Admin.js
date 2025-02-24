@@ -9,7 +9,11 @@ const path = require('path');
 const { PDFDocument } = require('pdf-lib');
 const { writeFileSync } = require('fs');
 const Test = require('../../Db_Schemas/Test');
+
 const pdf2image = require('pdf-poppler');
+const { fromPath } = require("pdf2pic");
+
+
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
 const OpenAI = require("openai");
@@ -46,161 +50,6 @@ app.get('/getAllUsers', async (req, res, next) => {
         })
 })
 
-// app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
-//     if (!req.file) {
-//         return res.status(400).send('No file uploaded');
-//     }
-
-//     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
-//     handleExtractStart(pdfFilePath, res);
-// });
-
-// const handleExtractStart = async (file, res) => {
-//     try {
-//         const pdfPath = file;
-//         const dataBuffer = await fs.readFile(pdfPath);
-
-//         const pdfDoc = await PDFDocument.load(dataBuffer);
-//         const data = await pdf(dataBuffer);
-//         extractMCQs(data.text, pdfDoc).then(result => {
-//             res.status(200).json(result);
-//         }).catch(error => {
-//             console.log(error)
-//         })
-//     } catch (error) {
-//         console.error("Error processing PDF:", error);
-//         res.status(500).send("Error processing PDF");
-//     }
-// }
-
-// async function extractMCQs(text, pdfDoc) {
-
-// const handleExtractStart = async (file, res) => {
-//     try {
-//         const pdfPath = file;
-//         const dataBuffer = await fs.readFile(pdfPath);
-
-//         const pdfDoc = await PDFDocument.load(dataBuffer);
-//         const data = await pdf(dataBuffer);
-//         extractMCQs(data.text, pdfDoc).then(result => {
-//             res.status(200).json(result);
-//         }).catch(error => {
-//             console.log(error)
-//         })
-//     } catch (error) {
-//         console.error("Error processing PDF:", error);
-//         res.status(500).send("Error processing PDF");
-//     }
-// }
-
-// // async function extractMCQs(text, pdfDoc) {
-// //     const mcqPattern = /(\d+\.\s+.*?)(?=\d+\.|\Z)/gs;
-// //     let mcqs = [];
-// //     let match;
-
-// //     while ((match = mcqPattern.exec(text)) !== null) {
-// //         const questionBlock = match[1].trim();
-// //         console.log('block', questionBlock);
-// //         const questionData = await processQuestionBlock(questionBlock, pdfDoc);
-// //         mcqs.push(questionData);
-// //     }
-
-// //     return mcqs;
-// // }
-
-// // async function processQuestionBlock(block, pdfDoc) {
-// //     const lines = block.split('\n').map(line => line.trim());
-// //     let question = '';
-// //     const options = [];
-// //     let answer = '';
-// //     let explanation = '';
-// //     let explanationStart = false;
-
-// //     const optionPattern = /^[A-Z]\.\s+/i;
-
-// //     for (let i = 0; i < lines.length; i++) {
-// //         const line = lines[i];
-// //         if (line.startsWith('Answer:')) {
-// //             answer = line.split('Answer:')[1].trim();
-// //         } else if (line.startsWith('Explanation:')) {
-// //             explanationStart = true;
-// //             explanation += line.split('Explanation:')[1].trim() + ' ';
-// //         } else if (explanationStart) {
-// //             explanation += line + ' ';
-// //         } else if (optionPattern.test(line)) {
-// //             options.push(line);
-// //         } else {
-// //             if (question === '') {
-// //                 question += line;
-// //             }
-// //         }
-// //     }
-// //     question = question.trim();
-// //     return {
-// //         id: (Math.random() * 1000).toFixed(),
-// //         question,
-// //         options,
-// //         answer,
-// //         explanation: explanation.trim(),
-// //         diagram: ''
-// //     };
-// // }
-
-
-
-// async function extractMCQs(text, pdfDoc) {
-//     // Updated pattern to capture questions more comprehensively
-//     const mcqPattern = /(\d+\.\s+[\s\S]+?)(?=\n\d+\.\s|\n*$)/g;
-//     let mcqs = [];
-//     let match;
-
-//     while ((match = mcqPattern.exec(text)) !== null) {
-//         const questionBlock = match[1].trim();
-//         console.log('block', questionBlock);
-//         const questionData = await processQuestionBlock(questionBlock, pdfDoc);
-//         mcqs.push(questionData);
-//     }
-
-//     return mcqs;
-// }
-
-// async function processQuestionBlock(block, pdfDoc) {
-//     const lines = block.split('\n').map(line => line.trim());
-//     let question = '';
-//     const options = [];
-//     let answer = '';
-//     let explanation = '';
-//     let explanationStart = false;
-
-//     const optionPattern = /^[A-Z]\.\s+/i;
-
-//     for (let i = 0; i < lines.length; i++) {
-//         const line = lines[i];
-
-//         // Match answer and explanation sections more accurately
-//         if (line.startsWith('Answer:')) {
-//             answer = line.split('Answer:')[1].trim();
-//         } else if (line.startsWith('Explanation:')) {
-//             explanationStart = true;
-//             explanation += line.split('Explanation:')[1].trim() + ' ';
-//         } else if (explanationStart) {
-//             explanation += line + ' ';
-//         } else if (optionPattern.test(line)) {
-//             options.push(line);
-//         } else {
-//             question += line + ' ';
-//         }
-//     }
-
-//     return {
-//         id: (Math.random() * 1000).toFixed(),
-//         question: question.trim(),
-//         options,
-//         answer,
-//         explanation: explanation.trim(),
-//         diagram: ''
-//     };
-// }
 
 app.post("/uploadImagePdf", upload.single("file"), async (req, res) => {
     if (!req.file) {
@@ -209,17 +58,18 @@ app.post("/uploadImagePdf", upload.single("file"), async (req, res) => {
 
     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
     const outputFolder = path.resolve(__dirname, '..', '..', 'output_images');
-    processPDF(pdfFilePath, outputFolder, res);
-app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
-    if (!req.file) {
-        return res.status(400).send('No file uploaded');
-    }
-
-    const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
-    handleExtractStart(pdfFilePath, res);
-});
+    processPDF(pdfFilePath, outputFolder, res,req.file);
 
 });
+
+// app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
+//     if (!req.file) {
+//         return res.status(400).send('No file uploaded');
+//     }
+
+//     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
+//     handleExtractStart(pdfFilePath, res);
+// });
 
 async function processPDF(pdfPath, outputFolder, res) {
     try {
@@ -233,21 +83,24 @@ async function processPDF(pdfPath, outputFolder, res) {
 }
 
 async function convertPDFToImages(pdfPath, outputFolder) {
-    const opts = {
-        format: 'png',
-        out_dir: outputFolder,
-        out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
-        page: null
-    };
-
-    await pdf2image.convert(pdfPath, opts);
-
-    // Get the list of generated images
-    const imageFiles = fs.readdirSync(outputFolder)
-        .filter(file => file.startsWith(opts.out_prefix) && file.endsWith('.png'))
-        .map(file => path.join(outputFolder, file));
-    return imageFiles; // Return the array of image paths
+   
 }
+
+// async function convertPDFToImages(pdfPath, outputFolder) {
+//     const opts = {
+//         format: 'png',
+//         out_dir: outputFolder,
+//         out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
+//         page: null
+//     };
+
+//     await pdf2image.convert(pdfPath, opts);
+
+//     const imageFiles = fs.readdirSync(outputFolder)
+//         .filter(file => file.startsWith(opts.out_prefix) && file.endsWith('.png'))
+//         .map(file => path.join(outputFolder, file));
+//     return imageFiles; // Return the array of image paths
+// }
 
 async function preprocessImage(imagePath) {
     const processedImagePath = imagePath.replace('.png', '_processed.png');
@@ -286,7 +139,7 @@ async function extractTextFromImages(imagePaths) {
 }
 
 const getAiGeneratedJson = async (text) => {
-    const openai = new OpenAI({ apiKey: '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' });
+    const openai = new OpenAI({ apiKey: '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' });
     let content = "";
     const stream = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -515,7 +368,7 @@ const enhanceMathFormatting = (text) => {
 
         { regex: /((\d+))\s*\^\s*(\d+)/g, replacement: toSuperscript },
         { regex: /(\w+)\^(\w+)/g, replacement: toSuperscript },
-        
+
 
         { regex: /푥\s*2/g, replacement: 'x²' },  // Fix x 2 → x²
 
