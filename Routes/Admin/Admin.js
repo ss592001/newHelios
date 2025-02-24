@@ -74,6 +74,82 @@ app.get('/getAllUsers', async (req, res, next) => {
 // }
 
 // async function extractMCQs(text, pdfDoc) {
+
+// const handleExtractStart = async (file, res) => {
+//     try {
+//         const pdfPath = file;
+//         const dataBuffer = await fs.readFile(pdfPath);
+
+//         const pdfDoc = await PDFDocument.load(dataBuffer);
+//         const data = await pdf(dataBuffer);
+//         extractMCQs(data.text, pdfDoc).then(result => {
+//             res.status(200).json(result);
+//         }).catch(error => {
+//             console.log(error)
+//         })
+//     } catch (error) {
+//         console.error("Error processing PDF:", error);
+//         res.status(500).send("Error processing PDF");
+//     }
+// }
+
+// // async function extractMCQs(text, pdfDoc) {
+// //     const mcqPattern = /(\d+\.\s+.*?)(?=\d+\.|\Z)/gs;
+// //     let mcqs = [];
+// //     let match;
+
+// //     while ((match = mcqPattern.exec(text)) !== null) {
+// //         const questionBlock = match[1].trim();
+// //         console.log('block', questionBlock);
+// //         const questionData = await processQuestionBlock(questionBlock, pdfDoc);
+// //         mcqs.push(questionData);
+// //     }
+
+// //     return mcqs;
+// // }
+
+// // async function processQuestionBlock(block, pdfDoc) {
+// //     const lines = block.split('\n').map(line => line.trim());
+// //     let question = '';
+// //     const options = [];
+// //     let answer = '';
+// //     let explanation = '';
+// //     let explanationStart = false;
+
+// //     const optionPattern = /^[A-Z]\.\s+/i;
+
+// //     for (let i = 0; i < lines.length; i++) {
+// //         const line = lines[i];
+// //         if (line.startsWith('Answer:')) {
+// //             answer = line.split('Answer:')[1].trim();
+// //         } else if (line.startsWith('Explanation:')) {
+// //             explanationStart = true;
+// //             explanation += line.split('Explanation:')[1].trim() + ' ';
+// //         } else if (explanationStart) {
+// //             explanation += line + ' ';
+// //         } else if (optionPattern.test(line)) {
+// //             options.push(line);
+// //         } else {
+// //             if (question === '') {
+// //                 question += line;
+// //             }
+// //         }
+// //     }
+// //     question = question.trim();
+// //     return {
+// //         id: (Math.random() * 1000).toFixed(),
+// //         question,
+// //         options,
+// //         answer,
+// //         explanation: explanation.trim(),
+// //         diagram: ''
+// //     };
+// // }
+
+
+
+// async function extractMCQs(text, pdfDoc) {
+//     // Updated pattern to capture questions more comprehensively
 //     const mcqPattern = /(\d+\.\s+[\s\S]+?)(?=\n\d+\.\s|\n*$)/g;
 //     let mcqs = [];
 //     let match;
@@ -101,6 +177,7 @@ app.get('/getAllUsers', async (req, res, next) => {
 //     for (let i = 0; i < lines.length; i++) {
 //         const line = lines[i];
 
+//         // Match answer and explanation sections more accurately
 //         if (line.startsWith('Answer:')) {
 //             answer = line.split('Answer:')[1].trim();
 //         } else if (line.startsWith('Explanation:')) {
@@ -133,7 +210,14 @@ app.post("/uploadImagePdf", upload.single("file"), async (req, res) => {
     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
     const outputFolder = path.resolve(__dirname, '..', '..', 'output_images');
     processPDF(pdfFilePath, outputFolder, res);
+app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded');
+    }
 
+    const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
+    handleExtractStart(pdfFilePath, res);
+});
 
 });
 
@@ -244,6 +328,7 @@ app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
     handleExtractStart(pdfFilePath, res);
 });
+
 
 const handleExtractStart = async (file, res) => {
     try {
@@ -427,9 +512,13 @@ const enhanceMathFormatting = (text) => {
         { regex: /(\d+)\s*degrees/g, replacement: '$1°' },
         { regex: /([a-zA-Z])\s*\^\s*(\d+)/g, replacement: toSuperscript },
         { regex: /(\d+)\s*\^\s*(\d+)/g, replacement: toSuperscript },
+
         { regex: /((\d+))\s*\^\s*(\d+)/g, replacement: toSuperscript },
         { regex: /(\w+)\^(\w+)/g, replacement: toSuperscript },
         
+
+        { regex: /푥\s*2/g, replacement: 'x²' },  // Fix x 2 → x²
+
         { regex: /푥\s*\^2/g, replacement: 'x²' }, // Fix x ^2 → x²
         { regex: /sqrt\((.*?)\)/g, replacement: '√($1)' }, // sqrt(x) → √(x)
         { regex: /\((.*?)\)\s*=\s*0/g, replacement: '($1) = 0' }, // Ensure quadratic equations are preserved
@@ -470,7 +559,6 @@ const enhanceMathFormatting = (text) => {
 
     return text;
 };
-
 
 
 
