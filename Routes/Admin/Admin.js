@@ -81,11 +81,6 @@ async function processPDF(pdfPath, outputFolder, res) {
         console.error('Error:', error);
     }
 }
-
-async function convertPDFToImages(pdfPath, outputFolder) {
-   
-}
-
 // async function convertPDFToImages(pdfPath, outputFolder) {
 //     const opts = {
 //         format: 'png',
