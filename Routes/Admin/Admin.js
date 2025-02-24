@@ -286,7 +286,7 @@ async function extractTextFromImages(imagePaths) {
 }
 
 const getAiGeneratedJson = async (text) => {
-    const openai = new OpenAI({ apiKey: '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' });
+    const openai = new OpenAI({ apiKey: process.env.AiKey });
     let content = "";
     const stream = await openai.chat.completions.create({
         model: "gpt-4o-mini",
