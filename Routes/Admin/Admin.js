@@ -81,21 +81,21 @@ async function processPDF(pdfPath, outputFolder, res) {
         console.error('Error:', error);
     }
 }
-// async function convertPDFToImages(pdfPath, outputFolder) {
-//     const opts = {
-//         format: 'png',
-//         out_dir: outputFolder,
-//         out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
-//         page: null
-//     };
+async function convertPDFToImages(pdfPath, outputFolder) {
+    const opts = {
+        format: 'png',
+        out_dir: outputFolder,
+        out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
+        page: null
+    };
 
-//     await pdf2image.convert(pdfPath, opts);
+    await pdf2image.convert(pdfPath, opts);
 
-//     const imageFiles = fs.readdirSync(outputFolder)
-//         .filter(file => file.startsWith(opts.out_prefix) && file.endsWith('.png'))
-//         .map(file => path.join(outputFolder, file));
-//     return imageFiles; // Return the array of image paths
-// }
+    const imageFiles = fs.readdirSync(outputFolder)
+        .filter(file => file.startsWith(opts.out_prefix) && file.endsWith('.png'))
+        .map(file => path.join(outputFolder, file));
+    return imageFiles; // Return the array of image paths
+}
 
 async function preprocessImage(imagePath) {
     const processedImagePath = imagePath.replace('.png', '_processed.png');
@@ -134,7 +134,7 @@ async function extractTextFromImages(imagePaths) {
 }
 
 const getAiGeneratedJson = async (text) => {
-    const openai = new OpenAI({ apiKey: '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' });
+    const openai = new OpenAI({ apiKey: process.env.AiKey });
     let content = "";
     const stream = await openai.chat.completions.create({
         model: "gpt-4o-mini",
