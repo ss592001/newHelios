@@ -106,7 +106,7 @@ async function processPDF(pdfPath, outputFolder, res) {
 //             }
 //         }
 //     }
-    
+
 //     return imagePaths;
 // };
 
@@ -127,7 +127,7 @@ async function convertPDFToImages(pdfPath, outputFolder) {
         enableXfa: false, // Render Xfa forms if any. Default value is false.
         viewportScale: 2.0, // The desired scale of PNG viewport. Default value is 1.0 which means to display page on the existing canvas with 100% scale.
         outputFolder: outputFolder, // Folder to write output PNG files. If not specified, PNG output will be available only as a Buffer content, without saving to a file.
-        outputFileMaskFunc: (pageNumber) => `page_${Math.random()*1000000000000000000}.png`, // Output filename mask function. Example: (pageNumber) => `page_${pageNumber}.png`
+        outputFileMaskFunc: (pageNumber) => `page_${Math.random() * 1000000000000000000}.png`, // Output filename mask function. Example: (pageNumber) => `page_${pageNumber}.png`
         // pdfFilePassword: 'pa$$word', // Password for encrypted PDF.
         // pagesToProcess: [1, 3, 11], // Subset of pages to convert (first page = 1), other pages will be skipped if specified.
         strictPagesToProcess: false, // When `true`, will throw an error if specified page number in pagesToProcess is invalid, otherwise will skip invalid page. Default value is false.
