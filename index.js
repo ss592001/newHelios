@@ -53,6 +53,7 @@ mongoose.connect(mongoUrl)
    .then(result => {
       app.listen(3008);
       console.log("connected to db and terminal at 3008");
+      console.log("Running on Node.js version:", process.version);
    })
 
 
