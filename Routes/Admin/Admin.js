@@ -1,4 +1,5 @@
 
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const fs = require('fs-extra');
@@ -10,9 +11,10 @@ const { PDFDocument } = require('pdf-lib');
 const { writeFileSync } = require('fs');
 const Test = require('../../Db_Schemas/Test');
 
-const pdf2image = require('pdf-poppler');
+// const pdf2image = require('pdf-poppler');
+const { pdfToPng } = require('pdf-to-png-converter');
 const { fromPath } = require("pdf2pic");
-
+const { exportImages } = require('pdf-export-images')
 
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
@@ -58,7 +60,7 @@ app.post("/uploadImagePdf", upload.single("file"), async (req, res) => {
 
     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
     const outputFolder = path.resolve(__dirname, '..', '..', 'output_images');
-    processPDF(pdfFilePath, outputFolder, res,req.file);
+    processPDF(pdfFilePath, outputFolder, res, req.file);
 
 });
 
@@ -81,15 +83,60 @@ async function processPDF(pdfPath, outputFolder, res) {
         console.error('Error:', error);
     }
 }
-async function convertPDFToImages(pdfPath, outputFolder) {
-    const opts = {
-        format: 'png',
-        out_dir: outputFolder,
-        out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
-        page: null
-    };
+// const convertPDFToImages = async (pdfPath, outputDir) => {
+//     await fs.ensureDir(outputDir);
 
-    await pdf2image.convert(pdfPath, opts);
+//     const pdfBytes = await fs.readFile(pdfPath);
+//     const pdfDoc = await PDFDocument.load(pdfBytes);
+//     const imagePaths = [];
+
+//     for (let i = 0; i < pdfDoc.getPageCount(); i++) {
+//         const page = pdfDoc.getPage(i);
+//         const images = page.node.get("Resources")?.get("XObject") || new Map();
+
+//         for (const [key, value] of images.entries()) {
+//             if (value.getName("Subtype") === "Image") {
+//                 const imageData = value.get("BitsPerComponent") ? value.get("Image") : null;
+//                 if (imageData) {
+//                     const imageBuffer = imageData.asBytes();
+//                     const imagePath = path.join(outputDir, `page-${i + 1}-${key}.png`);
+//                     await fs.writeFile(imagePath, imageBuffer);
+//                     imagePaths.push(imagePath);
+//                 }
+//             }
+//         }
+//     }
+    
+//     return imagePaths;
+// };
+
+async function convertPDFToImages(pdfPath, outputFolder) {
+    // const opts = {
+    //     format: 'png',
+    //     out_dir: outputFolder,
+    //     out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
+    //     page: null
+    // };
+
+    // await pdf2image.convert(pdfPath, opts);
+
+    let imagesArray = [];
+    const pngPages = await pdfToPng(pdfPath, {
+        disableFontFace: false, // When `false`, fonts will be rendered using a built-in font renderer that constructs the glyphs with primitive path commands. Default value is true.
+        useSystemFonts: false, // When `true`, fonts that aren't embedded in the PDF document will fallback to a system font. Default value is false.
+        enableXfa: false, // Render Xfa forms if any. Default value is false.
+        viewportScale: 2.0, // The desired scale of PNG viewport. Default value is 1.0 which means to display page on the existing canvas with 100% scale.
+        outputFolder: outputFolder, // Folder to write output PNG files. If not specified, PNG output will be available only as a Buffer content, without saving to a file.
+        outputFileMaskFunc: (pageNumber) => `page_${Math.random()*1000000000000000000}.png`, // Output filename mask function. Example: (pageNumber) => `page_${pageNumber}.png`
+        // pdfFilePassword: 'pa$$word', // Password for encrypted PDF.
+        // pagesToProcess: [1, 3, 11], // Subset of pages to convert (first page = 1), other pages will be skipped if specified.
+        strictPagesToProcess: false, // When `true`, will throw an error if specified page number in pagesToProcess is invalid, otherwise will skip invalid page. Default value is false.
+        verbosityLevel: 0, // Verbosity level. ERRORS: 0, WARNINGS: 1, INFOS: 5. Default value is 0.
+    });
+    pngPages.map((page, index) => imagesArray.push(`${outputFolder}/${page.name}`))
+    return imagesArray;
+
+
 
     const imageFiles = fs.readdirSync(outputFolder)
         .filter(file => file.startsWith(opts.out_prefix) && file.endsWith('.png'))
@@ -132,9 +179,9 @@ async function extractTextFromImages(imagePaths) {
 
     return finalMCQ;
 }
-
+const AIApiKey = process.env.AiKey
 const getAiGeneratedJson = async (text) => {
-    const openai = new OpenAI({ apiKey: process.env.AiKey });
+    const openai = new OpenAI({ apiKey: AIApiKey });
     let content = "";
     const stream = await openai.chat.completions.create({
         model: "gpt-4o-mini",
