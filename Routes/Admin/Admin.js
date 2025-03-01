@@ -13,8 +13,8 @@ const Test = require('../../Db_Schemas/Test');
 
 // const pdf2image = require('pdf-poppler');
 const { pdfToPng } = require('pdf-to-png-converter');
-const { fromPath } = require("pdf2pic");
-const { exportImages } = require('pdf-export-images')
+// const { fromPath } = require("pdf2pic");
+// const { exportImages } = require('pdf-export-images')
 
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
