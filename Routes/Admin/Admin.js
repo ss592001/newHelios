@@ -179,37 +179,197 @@ async function extractTextFromImages(imagePaths) {
 
     return finalMCQ;
 }
+
+const extractQuestions = (text) => {
+    const questions = [];
+    const passages = text.split(/\bPassage\b/);
+
+    passages.forEach((section, index) => {
+        let passageText = "";
+        let content = section;
+
+        if (index > 0) {
+            const parts = section.split(/\bQuestion\b/, 2);
+            if (parts.length < 2) return;
+            passageText = parts[0].trim();
+            content = "Question" + parts[1];
+        }
+
+        const questionParts = content.split(/\bQuestion\b/, 2);
+        if (questionParts.length < 2) return;
+
+        const questionTextParts = questionParts[1].split(/\bOptions\b/, 2);
+        if (questionTextParts.length < 2) return;
+
+        const questionText = questionTextParts[0].trim();
+        const optionsParts = questionTextParts[1].split(/\bAnswer\b/, 2);
+
+        const optionsText = optionsParts[0].trim();
+        let options = optionsText.split('\n').map(opt => opt.trim()).filter(opt => opt);
+
+        // Ensure only the first 4 options are taken
+        options = options.slice(0, 4);
+        if (options.length !== 4) return;
+
+        const answerParts = optionsParts.length > 1 ? optionsParts[1].split(/\bExplanation\b/, 2) : [];
+        const answerText = answerParts.length > 0 ? answerParts[0].trim() : '';
+        const explanationText = answerParts.length > 1 ? answerParts[1].trim() : '';
+
+        questions.push({
+            id: Math.floor(1000 + Math.random() * 9000),
+            passage: passageText,
+            question: questionText,
+            options: options,
+            answer: answerText,
+            explanation: explanationText,
+            diagram:""
+        });
+    });
+
+    return questions;
+};
+
+const extractQuestionsMaths = (text) => {
+    const questions = [];
+
+    // Split text into individual questions using 'Question' keyword
+    const questionSections = text.split(/\bQuestion\b/).filter(section => section.trim() !== "");
+
+    questionSections.forEach((section) => {
+        section = section.trim();
+
+        // Find "Options" keyword and extract question + options
+        const optionsIndex = section.indexOf("Options");
+        if (optionsIndex === -1) return; // Skip if "Options" is missing
+
+        const questionText = section.substring(0, optionsIndex).trim();
+        let optionsText = section.substring(optionsIndex + 7).trim(); // 7 accounts for "Options"
+
+        // Remove unwanted symbols (®, ©, etc.)
+        optionsText = optionsText.replace(/[^\w\s\(\)\-\≤\≥\=]/g, "").trim();
+
+        // Split options by newlines, remove empty items, and trim whitespace
+        let options = optionsText.split(/[\n\r]+/).map(opt => opt.trim()).filter(opt => opt);
+
+        // Auto-fix missing option labels if necessary
+        const optionLabels = ["A.", "B.", "C.", "D."];
+        options = options.map((opt, index) => {
+            return optionLabels[index] + " " + opt.replace(/^\(\w\)\s*/, "").trim();
+        });
+        options = options.slice(0, 4);
+
+        // Ensure exactly 4 options (fill missing ones with empty strings)
+        while (options.length < 4) {
+            options.push(optionLabels[options.length] + " ");
+        }
+
+        questions.push({
+            id: Math.floor(1000 + Math.random() * 9000),
+            passage: "", // No passage in this case
+            question: questionText,
+            options: options,
+            answer: "", // No answer provided
+            explanation: "", // No explanation provided
+            diagram:""
+        });
+    });
+
+    return questions;
+};
 const AIApiKey = process.env.AiKey
 const getAiGeneratedJson = async (text) => {
-    const openai = new OpenAI({ apiKey: AIApiKey });
-    let content = "";
-    const stream = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        store: true,
-        messages: [
-            { "role": "user", "content": `${text}  convert it into json format like for example [{id:23312,question:"The value of k for which equation 9x2 + 8xk + 8 = 0 has equal roots is",options:['A. only 3','B. only -3','C. +3','D. 9'],answer:'',explanation:'',diagram:''}]. id should be a random unique integer for each question. convert the text and also rectify the text for maths if there is any error. do all the maths converstion and corrections like integration , division , powers , under roots, differentiation and many more if required having error in this text , remove any backslash from the text , elements of the options must only be text , also the answer should contain only the option number for correct answer like if option 1 is true then answer will contain A , 2 is correct answer will contain B, 3 is correct then answer will contain C and for 4 answer will contain D and make sure to never miss the answer . and do not generate a single letter other than this json data.just return the array` }
-        ],
-        stream: true,
-    });
-    for await (const chunk of stream) {
-        content = content + (chunk.choices[0]?.delta?.content || "");
-        process.stdout.write(chunk.choices[0]?.delta?.content || "");
+     let jsonData;
+    if (!text.includes('Passage')) {
+        console.log(text, "from inside maths block")
+        jsonData = extractQuestionsMaths(text)
+        console.log(jsonData)
+        return jsonData;
+        // console.log('found maths question')
+        // const openai = new OpenAI({ apiKey: AIApiKey });
+        // let content = "";
+        // const stream = await openai.chat.completions.create({
+        //     model: "gpt-4o-mini",
+        //     store: true,
+        //     messages: [
+        //         {
+        //             "role": "user", "content": `${text}  convert it into json format like for example
+        //          [{id:23312,Passage:"",question:"The value
+        //           of k for which equation 9x2 + 8xk + 8 = 0 
+        //           has equal roots is",
+        //           options:['A. only 3','B. only -3','C. +3','D. 9'],
+        //           answer:'',explanation:'',diagram:''}].
+        //            id should be a random unique integer for each 
+        //            question. convert the text and also rectify the
+        //             text for maths if there is any error. do all
+        //              the maths converstion and corrections like 
+        //              integration , division , powers , under roots,
+        //               differentiation and many more if required having
+        //                error in this text , remove any backslash from 
+        //                the text , elements of the options must only be
+        //                 text , also the answer should contain only the
+        //                  option number for correct answer like if option
+        //                   1 is true then answer will contain A , 2 is
+        //                    correct answer will contain B, 3 is correct 
+        //                    then answer will contain C and for 4 answer
+        //                     will contain D and make sure to never miss
+        //                      the answer . and do not generate a single
+        //                       letter other than this json data.just
+        //                        return the array . also remember that
+        //                         questions can be of maths subject as
+        //                          well as english subject with an 
+        //                          aditional key value pair of passage:"" in the question, the test after the keyword Passage if it exists and before the keyword Question will
+        //                           go into the Passage key else inside the question key. so handle it very carefully .` }
+        //     ],
+        //     stream: true,
+        // });
+        // for await (const chunk of stream) {
+        //     content = content + (chunk.choices[0]?.delta?.content || "");
+        //     process.stdout.write(chunk.choices[0]?.delta?.content || "");
+        // }
+
+        // return content;
+    }
+    else {
+        jsonData = extractQuestions(text)
+        console.log(jsonData)
+        return jsonData
+
     }
 
-    return content;
+    // const openai = new OpenAI({ apiKey: AIApiKey });
+    // let content = "";
+    // const stream = await openai.chat.completions.create({
+    //     model: "gpt-4o-mini",
+    //     store: true,
+    //     messages: [
+    //         { "role": "user", "content": `${text}  convert it into json format like for example [{id:23312,question:"The value of k for which equation 9x2 + 8xk + 8 = 0 has equal roots is",options:['A. only 3','B. only -3','C. +3','D. 9'],answer:'',explanation:'',diagram:''}]. id should be a random unique integer for each question. convert the text and also rectify the text for maths if there is any error. do all the maths converstion and corrections like integration , division , powers , under roots, differentiation and many more if required having error in this text , remove any backslash from the text , elements of the options must only be text , also the answer should contain only the option number for correct answer like if option 1 is true then answer will contain A , 2 is correct answer will contain B, 3 is correct then answer will contain C and for 4 answer will contain D and make sure to never miss the answer . and do not generate a single letter other than this json data.just return the array` }
+    //     ],
+    //     stream: true,
+    // });
+    // for await (const chunk of stream) {
+    //     content = content + (chunk.choices[0]?.delta?.content || "");
+    //     process.stdout.write(chunk.choices[0]?.delta?.content || "");
+    // }
+
+    // return content;
 
 }
 
 async function parseQuestions(text) {
 
-    const McqData = await getAiGeneratedJson(text);
-    const formatedText = await enhanceMathFormatting(McqData)
-    // const firstSplit=McqData.split('```json')[1];
-    // const secondSplit=firstSplit.split('```')[0]
+    // const McqData = await getAiGeneratedJson(text);
+    // const formatedText = await enhanceMathFormatting(McqData)
+    // const match = formatedText.match(/```json\s*([\s\S]*?)\s*```/);
+    // const jsonString = match ? match[1] : null;
+    // return JSON.parse(jsonString)
 
-    const match = formatedText.match(/```json\s*([\s\S]*?)\s*```/);
-    const jsonString = match ? match[1] : null;
-    return JSON.parse(jsonString)
+    
+    const McqData = await getAiGeneratedJson(text);
+    // const formatedText = await enhanceMathFormatting(McqData)
+
+    // const match = McqData.match(/```json\s*([\s\S]*?)\s*```/);
+    // const jsonString = match ? match[1] : null;
+    return McqData
 }
 
 
