@@ -1025,7 +1025,8 @@ const extractQuestions = (text) => {
             question: questionText,
             options: options,
             answer: answerText,
-            explanation: explanationText
+            explanation: explanationText,
+            diagram: ''
         });
     });
 
@@ -1073,7 +1074,8 @@ const extractQuestionsMaths = (text) => {
             question: questionText,
             options: options,
             answer: "", // No answer provided
-            explanation: "" // No explanation provided
+            explanation: "",// No explanation provided
+            diagram: ''
         });
     });
 
@@ -1292,7 +1294,8 @@ const extractQuestions2 = (text) => {
             question: questionText,
             options: options,
             answer: answerText,
-            explanation: explanationText
+            explanation: explanationText,
+            diagram: ''
         });
     });
 
@@ -1338,7 +1341,8 @@ const extractQuestionsMaths2 = (text) => {
             question: questionText,
             options: options,
             answer: "", // No answer provided
-            explanation: "" // No explanation provided
+            explanation: "", // No explanation provided
+            diagram: ''
         });
     });
 
@@ -1689,7 +1693,7 @@ app.post('/submitTest', async (req, res, next) => {
     }
 });
 
-app.get('/clear', async (req, res, next) => {
+app.get('/clearUsers', async (req, res, next) => {
     User.deleteMany({})
         .then(result => {
             console.log(result);
@@ -1700,6 +1704,16 @@ app.get('/clear', async (req, res, next) => {
         })
 })
 
+app.get('/clearTests', async (req, res, next) => {
+    Test.deleteMany({})
+        .then(result => {
+            console.log(result);
+            res.json(result);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+})
 app.get('/getUsers', async (req, res, next) => {
     User.find({})
         .then(result => {
