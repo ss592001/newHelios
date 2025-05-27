@@ -968,11 +968,6 @@ const ImageStorage = multer.diskStorage({
 const upload = multer({ storage: PdfStorage });
 const UploadImages = multer({ storage: ImageStorage });
 
-const tf = require('@tensorflow/tfjs');
-const cocoSsd = require('@tensorflow-models/coco-ssd');
-const { createCanvas, loadImage } = require('canvas');
-
-
 app.get('/getAllUsers', async (req, res, next) => {
     User.find({})
         .then(result => {
