@@ -11,11 +11,7 @@
 // const { writeFileSync } = require('fs');
 // const Test = require('../../Db_Schemas/Test');
 
-// // const pdf2image = require('pdf-poppler');
 // const { pdfToPng } = require('pdf-to-png-converter');
-// // const { fromPath } = require("pdf2pic");
-// // const { exportImages } = require('pdf-export-images')
-
 // const Tesseract = require('tesseract.js');
 // const sharp = require('sharp');
 // const OpenAI = require("openai");
@@ -64,14 +60,6 @@
 
 // });
 
-// // app.post('/uploadQAPdf', upload.single('file'), async (req, res, next) => {
-// //     if (!req.file) {
-// //         return res.status(400).send('No file uploaded');
-// //     }
-
-// //     const pdfFilePath = path.join(__dirname, '..', '..', 'QAUploads', req.file.filename);
-// //     handleExtractStart(pdfFilePath, res);
-// // });
 
 // async function processPDF(pdfPath, outputFolder, res) {
 //     try {
@@ -83,43 +71,9 @@
 //         console.error('Error:', error);
 //     }
 // }
-// // const convertPDFToImages = async (pdfPath, outputDir) => {
-// //     await fs.ensureDir(outputDir);
 
-// //     const pdfBytes = await fs.readFile(pdfPath);
-// //     const pdfDoc = await PDFDocument.load(pdfBytes);
-// //     const imagePaths = [];
-
-// //     for (let i = 0; i < pdfDoc.getPageCount(); i++) {
-// //         const page = pdfDoc.getPage(i);
-// //         const images = page.node.get("Resources")?.get("XObject") || new Map();
-
-// //         for (const [key, value] of images.entries()) {
-// //             if (value.getName("Subtype") === "Image") {
-// //                 const imageData = value.get("BitsPerComponent") ? value.get("Image") : null;
-// //                 if (imageData) {
-// //                     const imageBuffer = imageData.asBytes();
-// //                     const imagePath = path.join(outputDir, `page-${i + 1}-${key}.png`);
-// //                     await fs.writeFile(imagePath, imageBuffer);
-// //                     imagePaths.push(imagePath);
-// //                 }
-// //             }
-// //         }
-// //     }
-
-// //     return imagePaths;
-// // };
 
 // async function convertPDFToImages(pdfPath, outputFolder) {
-//     // const opts = {
-//     //     format: 'png',
-//     //     out_dir: outputFolder,
-//     //     out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
-//     //     page: null
-//     // };
-
-//     // await pdf2image.convert(pdfPath, opts);
-
 //     let imagesArray = [];
 //     const pngPages = await pdfToPng(pdfPath, {
 //         disableFontFace: false, // When `false`, fonts will be rendered using a built-in font renderer that constructs the glyphs with primitive path commands. Default value is true.
@@ -136,12 +90,6 @@
 //     pngPages.map((page, index) => imagesArray.push(`${outputFolder}/${page.name}`))
 //     return imagesArray;
 
-
-
-//     const imageFiles = fs.readdirSync(outputFolder)
-//         .filter(file => file.startsWith(opts.out_prefix) && file.endsWith('.png'))
-//         .map(file => path.join(outputFolder, file));
-//     return imageFiles; // Return the array of image paths
 // }
 
 // async function preprocessImage(imagePath) {
@@ -179,6 +127,52 @@
 
 //     return finalMCQ;
 // }
+// // const extractQuestions = (text) => {
+// //     const questions = [];
+// //     let passages = text.includes("Passage") ? text.split(/\bPassage\b/) : [text];
+
+// //     passages.forEach((section, index) => {
+// //         let passageText = "";
+// //         let content = section.trim();
+
+// //         if (text.includes("Passage") && index > 0) {
+// //             const parts = section.split(/\bQuestion\b/, 2);
+// //             if (parts.length < 2) return;
+// //             passageText = parts[0].trim();
+// //             content = "Question" + parts[1];
+// //         }
+
+// //         const questionParts = content.split(/\bQuestion\b/).slice(1);
+// //         questionParts.forEach(questionSection => {
+// //             const questionTextParts = questionSection.split(/\bOptions\b/, 2);
+// //             if (questionTextParts.length < 2) return;
+
+// //             const questionText = questionTextParts[0].trim();
+// //             const optionsParts = questionTextParts[1].split(/\bAnswer\b/, 2);
+// //             const optionsText = optionsParts[0].trim();
+
+// //             let options = optionsText.split('\n').map(opt => opt.trim()).filter(opt => opt);
+// //             options = options.slice(0, 4);
+
+// //             if (options.length !== 4) return;
+
+// //             const answerParts = optionsParts.length > 1 ? optionsParts[1].split(/\bExplanation\b/, 2) : [];
+// //             const answerText = answerParts.length > 0 ? answerParts[0].trim() : '';
+// //             const explanationText = answerParts.length > 1 ? answerParts[1].trim() : '';
+
+// //             questions.push({
+// //                 id: Math.floor(1000 + Math.random() * 9000),
+// //                 passage: passageText,
+// //                 question: questionText,
+// //                 options: options,
+// //                 answer: answerText,
+// //                 explanation: explanationText
+// //             });
+// //         });
+// //     });
+
+// //     return questions;
+// // };
 
 // const extractQuestions = (text) => {
 //     const questions = [];
@@ -222,12 +216,13 @@
 //             options: options,
 //             answer: answerText,
 //             explanation: explanationText,
-//             diagram:""
+//             diagram: ''
 //         });
 //     });
 
 //     return questions;
 // };
+
 
 // const extractQuestionsMaths = (text) => {
 //     const questions = [];
@@ -269,106 +264,76 @@
 //             question: questionText,
 //             options: options,
 //             answer: "", // No answer provided
-//             explanation: "", // No explanation provided
-//             diagram:""
+//             explanation: "",// No explanation provided
+//             diagram: ''
 //         });
 //     });
 
 //     return questions;
 // };
-// const AIApiKey = process.env.AiKey
+
+// // const extractQuestions = (text) => {
+// //     const questions = [];
+// //     let sections = text.split(/\bQuestion\b/);
+// //     let passageText = "";
+
+// //     sections.forEach((section, index) => {
+// //         let content = section.trim();
+
+// //         if (content.includes("Passage")) {
+// //             let parts = content.split(/\bPassage\b/);
+// //             if (parts.length > 1) {
+// //                 passageText = parts[1].split(/\bQuestion\b/)[0].trim();
+// //                 content = "Question" + parts[1].split(/\bQuestion\b/).slice(1).join("Question");
+// //             }
+// //         }
+
+// //         const questionParts = content.split(/\bOptions\b/, 2);
+// //         if (questionParts.length < 2) return;
+
+// //         const questionText = questionParts[0].replace(/[^a-zA-Z0-9 ?.,'"-]/g, "").trim();
+// //         const optionsParts = questionParts[1].split(/\bAnswer\b/, 2);
+
+// //         let options = optionsParts[0].split('\n').map(opt => opt.trim()).filter(opt => opt);
+// //         options = options.slice(0, 4);
+
+// //         if (options.length !== 4) return;
+
+// //         const answerParts = optionsParts.length > 1 ? optionsParts[1].split(/\bExplanation\b/, 2) : [];
+// //         const answerText = answerParts.length > 0 ? answerParts[0].trim() : '';
+// //         const explanationText = answerParts.length > 1 ? answerParts[1].trim() : '';
+
+// //         questions.push({
+// //             id: Math.floor(1000 + Math.random() * 9000),
+// //             passage: passageText,
+// //             question: questionText,
+// //             options: options,
+// //             answer: answerText,
+// //             explanation: explanationText
+// //         });
+// //     });
+
+// //     return questions;
+// // };
+
 // const getAiGeneratedJson = async (text) => {
-//      let jsonData;
+//     let jsonData;
 //     if (!text.includes('Passage')) {
 //         console.log(text, "from inside maths block")
 //         jsonData = extractQuestionsMaths(text)
 //         console.log(jsonData)
 //         return jsonData;
-//         // console.log('found maths question')
-//         // const openai = new OpenAI({ apiKey: AIApiKey });
-//         // let content = "";
-//         // const stream = await openai.chat.completions.create({
-//         //     model: "gpt-4o-mini",
-//         //     store: true,
-//         //     messages: [
-//         //         {
-//         //             "role": "user", "content": `${text}  convert it into json format like for example
-//         //          [{id:23312,Passage:"",question:"The value
-//         //           of k for which equation 9x2 + 8xk + 8 = 0 
-//         //           has equal roots is",
-//         //           options:['A. only 3','B. only -3','C. +3','D. 9'],
-//         //           answer:'',explanation:'',diagram:''}].
-//         //            id should be a random unique integer for each 
-//         //            question. convert the text and also rectify the
-//         //             text for maths if there is any error. do all
-//         //              the maths converstion and corrections like 
-//         //              integration , division , powers , under roots,
-//         //               differentiation and many more if required having
-//         //                error in this text , remove any backslash from 
-//         //                the text , elements of the options must only be
-//         //                 text , also the answer should contain only the
-//         //                  option number for correct answer like if option
-//         //                   1 is true then answer will contain A , 2 is
-//         //                    correct answer will contain B, 3 is correct 
-//         //                    then answer will contain C and for 4 answer
-//         //                     will contain D and make sure to never miss
-//         //                      the answer . and do not generate a single
-//         //                       letter other than this json data.just
-//         //                        return the array . also remember that
-//         //                         questions can be of maths subject as
-//         //                          well as english subject with an 
-//         //                          aditional key value pair of passage:"" in the question, the test after the keyword Passage if it exists and before the keyword Question will
-//         //                           go into the Passage key else inside the question key. so handle it very carefully .` }
-//         //     ],
-//         //     stream: true,
-//         // });
-//         // for await (const chunk of stream) {
-//         //     content = content + (chunk.choices[0]?.delta?.content || "");
-//         //     process.stdout.write(chunk.choices[0]?.delta?.content || "");
-//         // }
 
-//         // return content;
 //     }
 //     else {
 //         jsonData = extractQuestions(text)
 //         console.log(jsonData)
 //         return jsonData
-
 //     }
-
-//     // const openai = new OpenAI({ apiKey: AIApiKey });
-//     // let content = "";
-//     // const stream = await openai.chat.completions.create({
-//     //     model: "gpt-4o-mini",
-//     //     store: true,
-//     //     messages: [
-//     //         { "role": "user", "content": `${text}  convert it into json format like for example [{id:23312,question:"The value of k for which equation 9x2 + 8xk + 8 = 0 has equal roots is",options:['A. only 3','B. only -3','C. +3','D. 9'],answer:'',explanation:'',diagram:''}]. id should be a random unique integer for each question. convert the text and also rectify the text for maths if there is any error. do all the maths converstion and corrections like integration , division , powers , under roots, differentiation and many more if required having error in this text , remove any backslash from the text , elements of the options must only be text , also the answer should contain only the option number for correct answer like if option 1 is true then answer will contain A , 2 is correct answer will contain B, 3 is correct then answer will contain C and for 4 answer will contain D and make sure to never miss the answer . and do not generate a single letter other than this json data.just return the array` }
-//     //     ],
-//     //     stream: true,
-//     // });
-//     // for await (const chunk of stream) {
-//     //     content = content + (chunk.choices[0]?.delta?.content || "");
-//     //     process.stdout.write(chunk.choices[0]?.delta?.content || "");
-//     // }
-
-//     // return content;
-
 // }
 
 // async function parseQuestions(text) {
-
-//     // const McqData = await getAiGeneratedJson(text);
-//     // const formatedText = await enhanceMathFormatting(McqData)
-//     // const match = formatedText.match(/```json\s*([\s\S]*?)\s*```/);
-//     // const jsonString = match ? match[1] : null;
-//     // return JSON.parse(jsonString)
-
-    
 //     const McqData = await getAiGeneratedJson(text);
-//     // const formatedText = await enhanceMathFormatting(McqData)
-
-//     // const match = McqData.match(/```json\s*([\s\S]*?)\s*```/);
-//     // const jsonString = match ? match[1] : null;
 //     return McqData
 // }
 
@@ -422,23 +387,22 @@
 // }
 
 // // Function to process individual MCQs and extract properly formatted math expressions
-// async function processQuestionBlock(block, pdfDoc) {
+
+// async function processQuestionBlockOld(block, pdfDoc) {
 //     const lines = block.split('\n' || '?').map(line => line.trim());
 //     let question = '';
+//     let passage = '';
 //     const options = [];
 //     let answer = '';
 //     let explanation = '';
 //     let explanationStart = false;
 //     let hasQuestionFinished = false;
-
+//     let passageStart = false;
 //     const optionPattern = /^[A-D]\.\s+/i;
 
 //     for (let i = 0; i < lines.length; i++) {
 //         let line = lines[i];
-
-//         // Enhance math expressions in each line
 //         line = enhanceMathFormatting(line);
-
 //         if (line.startsWith('Answer:')) {
 //             // hasQuestionFinished = true;
 //             answer = line.split('Answer:')[1].trim();
@@ -449,10 +413,6 @@
 //         } else if (explanationStart) {
 //             explanation += line + ' ';
 //         }
-//         // else if (optionPattern.test(line)) {
-//         //     options.push(line);
-//         //     hasQuestionFinished = true;
-//         // } 
 //         else if (line.startsWith('A.')) {
 //             options.push(line);
 //         }
@@ -471,9 +431,9 @@
 //             }
 //         }
 //     }
-
 //     return {
 //         id: (Math.random() * 1000).toFixed(),
+//         passage: passage,
 //         question: question.trim(),
 //         options,
 //         answer,
@@ -481,6 +441,178 @@
 //         diagram: ''
 //     };
 // }
+
+
+// const extractQuestions2 = (text) => {
+//     const questions = [];
+//     const passages = text.split(/\bPassage\b/);
+
+//     passages.forEach((section, index) => {
+//         let passageText = "";
+//         let content = section;
+
+//         if (index > 0) {
+//             const parts = section.split(/\bQuestion\b/, 2);
+//             if (parts.length < 2) return;
+//             passageText = parts[0].trim();
+//             content = "Question" + parts[1];
+//         }
+
+//         const questionParts = content.split(/\bQuestion\b/, 2);
+//         if (questionParts.length < 2) return;
+
+//         const questionTextParts = questionParts[1].split(/\bOptions\b/, 2);
+//         if (questionTextParts.length < 2) return;
+
+//         const questionText = questionTextParts[0].trim();
+//         const optionsParts = questionTextParts[1].split(/\bAnswer\b/, 2);
+
+//         const optionsText = optionsParts[0].trim();
+//         let options = optionsText.split('\n').map(opt => opt.trim()).filter(opt => opt);
+
+//         // Ensure only the first 4 options are taken
+//         options = options.slice(0, 4);
+//         if (options.length !== 4) return;
+
+//         const answerParts = optionsParts.length > 1 ? optionsParts[1].split(/\bExplanation\b/, 2) : [];
+//         const answerText = answerParts.length > 0 ? answerParts[0].trim() : '';
+//         const explanationText = answerParts.length > 1 ? answerParts[1].trim() : '';
+
+//         questions.push({
+//             id: Math.floor(1000 + Math.random() * 9000),
+//             passage: passageText,
+//             question: questionText,
+//             options: options,
+//             answer: answerText,
+//             explanation: explanationText,
+//             diagram: ''
+//         });
+//     });
+
+//     return questions[0];
+// };
+// const extractQuestionsMaths2 = (text) => {
+//     const questions = [];
+
+//     // Split text into individual questions using 'Question' keyword
+//     const questionSections = text.split(/\bQuestion\b/).filter(section => section.trim() !== "");
+
+//     questionSections.forEach((section) => {
+//         section = section.trim();
+
+//         // Find "Options" keyword and extract question + options
+//         const optionsIndex = section.indexOf("Options");
+//         if (optionsIndex === -1) return; // Skip if "Options" is missing
+
+//         const questionText = section.substring(0, optionsIndex).trim();
+//         let optionsText = section.substring(optionsIndex + 7).trim(); // 7 accounts for "Options"
+
+//         // Remove unwanted symbols (®, ©, etc.)
+//         optionsText = optionsText.replace(/[^\w\s\(\)\-\≤\≥\=]/g, "").trim();
+
+//         // Split options by newlines, remove empty items, and trim whitespace
+//         let options = optionsText.split(/[\n\r]+/).map(opt => opt.trim()).filter(opt => opt);
+
+//         // Auto-fix missing option labels if necessary
+//         const optionLabels = ["A.", "B.", "C.", "D."];
+//         options = options.map((opt, index) => {
+//             return optionLabels[index] + " " + opt.replace(/^\(\w\)\s*/, "").trim();
+//         });
+//         options = options.slice(0, 4);
+
+//         // Ensure exactly 4 options (fill missing ones with empty strings)
+//         while (options.length < 4) {
+//             options.push(optionLabels[options.length] + " ");
+//         }
+
+//         questions.push({
+//             id: Math.floor(1000 + Math.random() * 9000),
+//             passage: "", // No passage in this case
+//             question: questionText,
+//             options: options,
+//             answer: "", // No answer provided
+//             explanation: "", // No explanation provided
+//             diagram: ''
+//         });
+//     });
+
+//     return questions[0];
+// };
+
+// function processQuestionBlock(text, pdfDoc) {
+
+//     if (!text.includes('Passage')) {
+//         console.log(text, "from inside maths block")
+//         jsonData = extractQuestionsMaths2(text)
+//         console.log(jsonData)
+//         return jsonData;
+
+//     }
+//     else {
+//         jsonData = extractQuestions2(text)
+//         console.log(jsonData)
+//         return jsonData
+
+//     }
+// }
+
+
+// // async function processQuestionBlock(block, pdfDoc) {
+// //     console.log('text',block);
+// //     const lines = block.split('\n').map(line => line.trim());
+// //     let question = '';
+// //     let passage = '';
+// //     const options = [];
+// //     let answer = '';
+// //     let explanation = '';
+// //     let explanationStart = false;
+// //     let hasQuestionFinished = false;
+// //     let passageStart = false;
+
+// //     for (let i = 0; i < lines.length; i++) {
+// //         let line = lines[i];
+// //         line = enhanceMathFormatting(line);
+// //         if (line.startsWith('Passage')) {
+// //             passageStart = true;
+// //             passage += line.split('Passage')[1].trim() + ' ';
+// //         } else if (passageStart && line !== '') {
+// //             passage += line + ' ';
+// //         } else if (line.startsWith('Answer:')) {
+// //             answer = line.split('Answer:')[1].trim();
+// //         } else if (line.startsWith('Explanation:')) {
+// //             explanationStart = true;
+// //             explanation += line.split('Explanation:')[1].trim() + ' ';
+// //         } else if (explanationStart) {
+// //             explanation += line + ' ';
+// //         } else if (line.startsWith('A.') || line.startsWith('B.') || line.startsWith('C.') || line.startsWith('D.')) {
+// //             options.push(line);
+// //         } else {
+// //             if (!hasQuestionFinished) {
+// //                 question += line + ' ';
+// //             }
+// //         }
+// //     }
+// //    return  console.log({
+// //         id: (Math.random() * 1000).toFixed(),
+// //         passage: passage.trim(),
+// //         question: question.trim(),
+// //         options,
+// //         answer,
+// //         explanation: explanation.trim(),
+// //         diagram: ''
+// //     })
+// //     return {
+// //         id: (Math.random() * 1000).toFixed(),
+// //         passage: passage.trim(),
+// //         question: question.trim(),
+// //         options,
+// //         answer,
+// //         explanation: explanation.trim(),
+// //         diagram: ''
+// //     };
+// // }
+
+
 
 // // Function to enhance math formatting in the extracted text
 // const enhanceMathFormatting = (text) => {
@@ -562,18 +694,14 @@
 //         { regex: /!=/g, replacement: '≠' },
 //         { regex: /\bsum\((.*?)\)/g, replacement: '∑$1' },
 //         { regex: /\bintegral\((.*?)\)/g, replacement: '∫$1 dx' },
+//         { regex: /\bIntegral\((.*?)\)/g, replacement: '∫$1 dx' },
 //         { regex: /\+-/g, replacement: '±' },
 //         { regex: /(\d+)\s*\*\s*(\d+)/g, replacement: '$1 × $2' },
 //         { regex: /(\d+)\s*degrees/g, replacement: '$1°' },
 //         { regex: /([a-zA-Z])\s*\^\s*(\d+)/g, replacement: toSuperscript },
 //         { regex: /(\d+)\s*\^\s*(\d+)/g, replacement: toSuperscript },
-
 //         { regex: /((\d+))\s*\^\s*(\d+)/g, replacement: toSuperscript },
 //         { regex: /(\w+)\^(\w+)/g, replacement: toSuperscript },
-
-
-//         { regex: /푥\s*2/g, replacement: 'x²' },  // Fix x 2 → x²
-
 //         { regex: /푥\s*\^2/g, replacement: 'x²' }, // Fix x ^2 → x²
 //         { regex: /sqrt\((.*?)\)/g, replacement: '√($1)' }, // sqrt(x) → √(x)
 //         { regex: /\((.*?)\)\s*=\s*0/g, replacement: '($1) = 0' }, // Ensure quadratic equations are preserved
@@ -585,7 +713,6 @@
 //         { regex: /sqrt\((.*?)\)/g, replacement: '√$1' },
 //         { regex: /√\s*\(?(\d+)\)?/g, replacement: '√$1' }, // Handles cases like √ (9)
 //         { regex: /(\d+)\s*\/\s*(\d+)/g, replacement: '$1/$2' }, // Properly format fractions
-//         { regex: /([a-zA-Z])\s*2/g, replacement: '$1²' },
 //         { regex: /<=/g, replacement: '≤' },
 //         { regex: />=/g, replacement: '≥' },
 //         { regex: /!=/g, replacement: '≠' },
@@ -658,6 +785,8 @@
 //     }
 // }
 
+// // parseQuestions2(text_data)
+
 // app.post('/uploadImages', UploadImages.single('file'), async (req, res, next) => {
 //     if (!req.file) {
 //         return res.status(400).send('No file uploaded');
@@ -728,27 +857,6 @@
 //             console.log(error);
 //         })
 // })
-
-// // app.post('/submitTest', async (req, res, next) => {
-// //     const data = req.body;
-// //     const user = await User.findOne({ _id: data.userId });
-// //     const assignedTests = user.assignedTests;
-// //     const testIndex =await assignedTests.findIndex((test, index) => test.testId === data.testId);
-// //     user.assignedTests[testIndex].testStatus =await 'Completed';
-// //     user.assignedTests[testIndex].answers =await data.answers;
-// //     user.assignedTests[testIndex].startTime =await data.startTime;
-// //     user.assignedTests[testIndex].endTime =await new Date();
-// //     await user.save()
-// //         .then(result => {
-// //             console.log(result);
-// //             res.json(result);
-// //         })
-// //         .catch(error => {
-// //             console.log(error);
-// //         })
-
-// // })
-
 // app.post('/submitTest', async (req, res, next) => {
 //     try {
 //         const data = req.body;
@@ -775,7 +883,7 @@
 //     }
 // });
 
-// app.get('/clear', async (req, res, next) => {
+// app.get('/clearUsers', async (req, res, next) => {
 //     User.deleteMany({})
 //         .then(result => {
 //             console.log(result);
@@ -786,6 +894,16 @@
 //         })
 // })
 
+// app.get('/clearTests', async (req, res, next) => {
+//     Test.deleteMany({})
+//         .then(result => {
+//             console.log(result);
+//             res.json(result);
+//         })
+//         .catch(error => {
+//             console.log(error);
+//         })
+// })
 // app.get('/getUsers', async (req, res, next) => {
 //     User.find({})
 //         .then(result => {
@@ -809,6 +927,8 @@
 // module.exports = app;
 
 
+
+
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -820,6 +940,7 @@ const path = require('path');
 const { PDFDocument } = require('pdf-lib');
 const { writeFileSync } = require('fs');
 const Test = require('../../Db_Schemas/Test');
+const Question = require('../../Db_Schemas/Questions');
 
 const { pdfToPng } = require('pdf-to-png-converter');
 const Tesseract = require('tesseract.js');
@@ -847,6 +968,11 @@ const ImageStorage = multer.diskStorage({
 const upload = multer({ storage: PdfStorage });
 const UploadImages = multer({ storage: ImageStorage });
 
+const tf = require('@tensorflow/tfjs');
+const cocoSsd = require('@tensorflow-models/coco-ssd');
+const { createCanvas, loadImage } = require('canvas');
+
+
 app.get('/getAllUsers', async (req, res, next) => {
     User.find({})
         .then(result => {
@@ -857,6 +983,91 @@ app.get('/getAllUsers', async (req, res, next) => {
             console.log(error);
         })
 })
+
+const openai = new OpenAI({
+    apiKey: process.env.AiKey
+});
+
+app.post('/extractText', UploadImages.single('file'), async (req, res) => {
+    try {
+        const imagePath = path.join(__dirname, '..', '..', 'images', req.file.filename);
+        const imageBuffer = fs.readFileSync(imagePath);
+        const base64Image = imageBuffer.toString('base64');
+
+        const result = await openai.chat.completions.create({
+            model: 'gpt-4.1',
+            response_format: { "type": "json_object" },
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are an OCR and question parser tool. Extract the full text from the image, including any passage, question, and answer options. If mathematical expressions are present, preserve them as LaTeX.
+
+- Use $...$ for inline LaTeX.
+- Use $$...$$ for block LaTeX (especially in explanations).
+- Do not escape backslashes (use \, not \\ that is do not use double slash in LaTex insted replace them with single slash \). 
+- Return your result in the following JSON format:
+
+{
+  "id": "random 10-character alphanumeric string",
+  "title": "A short descriptive title",
+  "tags": ["add suitable tags like 'algebra', 'geometry', etc."],
+  "passage": "Extracted passage if any, otherwise keep as an empty string with Latex",
+  "question": "The main question extracted from the image with Latex ",
+  "options": [
+    "A. option text with LaTex",
+    "B. option text with LaTex",
+    "C. option text with LaTex",
+    "D. option text with LaTex"
+  ],
+  "answer": "Correct option letter (e.g., 'A')",
+  "explanation": "Step-by-step explanation using LaTeX. Use $$...$$ for block LaTeX.",
+  "diagram": "",
+  "type": "objective",
+  "difficulty": "easy"  // or "moderate", "hard" as appropriate
+}
+
+Only return the JSON with proper latex for maths. Ensure LaTeX syntax is clean and unescaped. Do not include any extra commentary or markdown. also remove all \n and \\ . and modify the data to display on the website using mathJx. Please do not skip the latex syntax for maths and dipict fraction in the syntax $\frac{2}{5}$ and before returning the extracted the text , please recheck that each latex produced is correct to will be rendered perfectly. always enclose laTex with $ like this $\frac{2}{5}$ and use only single slashes in the LaTex`
+                },
+                {
+                    role: 'user',
+                    content: [
+                        {
+                            type: 'image_url',
+                            image_url: {
+                                url: `data:image/png;base64,${base64Image}`
+                            }
+                        },
+                        {
+                            type: 'text',
+                            text: 'Extract text and make sure mathematical exprassions remain intact and return structured JSON.'
+                        }
+                    ]
+                }
+            ],
+            max_tokens: 10000,
+            store: true
+        });
+
+        // Clean up uploaded file
+        fs.unlinkSync(imagePath);
+        console.log('json data', JSON.parse(result.choices[0].message.content))
+        // res.json({ content: JSON.parse(result.choices[0].message.content), status: 200 }
+        // );
+        res.json(JSON.parse(result.choices[0].message.content)
+        );
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Failed to process image.' });
+    }
+});
+app.post('/extractTextWithoutAi', UploadImages.single('file'), async (req, res) => {
+    console.log('without ai working')
+    const imagePath = path.join(__dirname, '..', '..', 'images', req.file.filename);
+    const imageBuffer = fs.readFileSync(imagePath);
+    // const base64Image = imageBuffer.toString('base64');
+    const data = await extractTextFromImages([imagePath], res)
+    return res.json(data[0])
+});
 
 
 app.post("/uploadImagePdf", upload.single("file"), async (req, res) => {
@@ -930,59 +1141,12 @@ async function extractTextFromImages(imagePaths) {
             logger: m => console.log(m)
         });
         completeText = completeText + ` ${text}`
-        // finalMCQ = parseQuestions(text);
 
     }
     let finalMCQ = parseQuestions(completeText);
 
     return finalMCQ;
 }
-// const extractQuestions = (text) => {
-//     const questions = [];
-//     let passages = text.includes("Passage") ? text.split(/\bPassage\b/) : [text];
-
-//     passages.forEach((section, index) => {
-//         let passageText = "";
-//         let content = section.trim();
-
-//         if (text.includes("Passage") && index > 0) {
-//             const parts = section.split(/\bQuestion\b/, 2);
-//             if (parts.length < 2) return;
-//             passageText = parts[0].trim();
-//             content = "Question" + parts[1];
-//         }
-
-//         const questionParts = content.split(/\bQuestion\b/).slice(1);
-//         questionParts.forEach(questionSection => {
-//             const questionTextParts = questionSection.split(/\bOptions\b/, 2);
-//             if (questionTextParts.length < 2) return;
-
-//             const questionText = questionTextParts[0].trim();
-//             const optionsParts = questionTextParts[1].split(/\bAnswer\b/, 2);
-//             const optionsText = optionsParts[0].trim();
-
-//             let options = optionsText.split('\n').map(opt => opt.trim()).filter(opt => opt);
-//             options = options.slice(0, 4);
-
-//             if (options.length !== 4) return;
-
-//             const answerParts = optionsParts.length > 1 ? optionsParts[1].split(/\bExplanation\b/, 2) : [];
-//             const answerText = answerParts.length > 0 ? answerParts[0].trim() : '';
-//             const explanationText = answerParts.length > 1 ? answerParts[1].trim() : '';
-
-//             questions.push({
-//                 id: Math.floor(1000 + Math.random() * 9000),
-//                 passage: passageText,
-//                 question: questionText,
-//                 options: options,
-//                 answer: answerText,
-//                 explanation: explanationText
-//             });
-//         });
-//     });
-
-//     return questions;
-// };
 
 const extractQuestions = (text) => {
     const questions = [];
@@ -1012,6 +1176,11 @@ const extractQuestions = (text) => {
         let options = optionsText.split('\n').map(opt => opt.trim()).filter(opt => opt);
 
         // Ensure only the first 4 options are taken
+        const optionLabels = ["A.", "B.", "C.", "D."];
+        options = options.map((opt, index) => {
+            return optionLabels[index] + " " + opt.replace(/^\(\w\)\s*/, "").trim();
+        });
+        options = options.slice(0, 4);
         options = options.slice(0, 4);
         if (options.length !== 4) return;
 
@@ -1021,12 +1190,16 @@ const extractQuestions = (text) => {
 
         questions.push({
             id: Math.floor(1000 + Math.random() * 9000),
+            title: 'no title',
             passage: passageText,
             question: questionText,
             options: options,
             answer: answerText,
+            tags: ["Literature", "Articles", "Tenses"],
+            difficulty: 'easy',
+            type: 'objective',
             explanation: explanationText,
-            diagram: ''
+            diagram: ""
         });
     });
 
@@ -1051,7 +1224,7 @@ const extractQuestionsMaths = (text) => {
         let optionsText = section.substring(optionsIndex + 7).trim(); // 7 accounts for "Options"
 
         // Remove unwanted symbols (®, ©, etc.)
-        optionsText = optionsText.replace(/[^\w\s\(\)\-\≤\≥\=]/g, "").trim();
+        // optionsText = optionsText.replace(/[^\w\s\(\)\-\≤\≥\=]/g, "").trim();
 
         // Split options by newlines, remove empty items, and trim whitespace
         let options = optionsText.split(/[\n\r]+/).map(opt => opt.trim()).filter(opt => opt);
@@ -1073,58 +1246,17 @@ const extractQuestionsMaths = (text) => {
             passage: "", // No passage in this case
             question: questionText,
             options: options,
+            tags: ["quadratic", "radical", "geometry"],
+            difficulty: 'easy',
+            type: 'objective',
             answer: "", // No answer provided
-            explanation: "",// No explanation provided
+            explanation: "", // No explanation provided
             diagram: ''
         });
     });
 
     return questions;
 };
-
-// const extractQuestions = (text) => {
-//     const questions = [];
-//     let sections = text.split(/\bQuestion\b/);
-//     let passageText = "";
-
-//     sections.forEach((section, index) => {
-//         let content = section.trim();
-
-//         if (content.includes("Passage")) {
-//             let parts = content.split(/\bPassage\b/);
-//             if (parts.length > 1) {
-//                 passageText = parts[1].split(/\bQuestion\b/)[0].trim();
-//                 content = "Question" + parts[1].split(/\bQuestion\b/).slice(1).join("Question");
-//             }
-//         }
-
-//         const questionParts = content.split(/\bOptions\b/, 2);
-//         if (questionParts.length < 2) return;
-
-//         const questionText = questionParts[0].replace(/[^a-zA-Z0-9 ?.,'"-]/g, "").trim();
-//         const optionsParts = questionParts[1].split(/\bAnswer\b/, 2);
-
-//         let options = optionsParts[0].split('\n').map(opt => opt.trim()).filter(opt => opt);
-//         options = options.slice(0, 4);
-
-//         if (options.length !== 4) return;
-
-//         const answerParts = optionsParts.length > 1 ? optionsParts[1].split(/\bExplanation\b/, 2) : [];
-//         const answerText = answerParts.length > 0 ? answerParts[0].trim() : '';
-//         const explanationText = answerParts.length > 1 ? answerParts[1].trim() : '';
-
-//         questions.push({
-//             id: Math.floor(1000 + Math.random() * 9000),
-//             passage: passageText,
-//             question: questionText,
-//             options: options,
-//             answer: answerText,
-//             explanation: explanationText
-//         });
-//     });
-
-//     return questions;
-// };
 
 const getAiGeneratedJson = async (text) => {
     let jsonData;
@@ -1290,12 +1422,16 @@ const extractQuestions2 = (text) => {
 
         questions.push({
             id: Math.floor(1000 + Math.random() * 9000),
+            title: 'no title',
             passage: passageText,
             question: questionText,
             options: options,
             answer: answerText,
             explanation: explanationText,
-            diagram: ''
+            tags: [],
+            difficulty: 'easy',
+            type: 'objective',
+            diagram: ""
         });
     });
 
@@ -1341,8 +1477,7 @@ const extractQuestionsMaths2 = (text) => {
             question: questionText,
             options: options,
             answer: "", // No answer provided
-            explanation: "", // No explanation provided
-            diagram: ''
+            explanation: "" // No explanation provided
         });
     });
 
@@ -1367,64 +1502,7 @@ function processQuestionBlock(text, pdfDoc) {
 }
 
 
-// async function processQuestionBlock(block, pdfDoc) {
-//     console.log('text',block);
-//     const lines = block.split('\n').map(line => line.trim());
-//     let question = '';
-//     let passage = '';
-//     const options = [];
-//     let answer = '';
-//     let explanation = '';
-//     let explanationStart = false;
-//     let hasQuestionFinished = false;
-//     let passageStart = false;
 
-//     for (let i = 0; i < lines.length; i++) {
-//         let line = lines[i];
-//         line = enhanceMathFormatting(line);
-//         if (line.startsWith('Passage')) {
-//             passageStart = true;
-//             passage += line.split('Passage')[1].trim() + ' ';
-//         } else if (passageStart && line !== '') {
-//             passage += line + ' ';
-//         } else if (line.startsWith('Answer:')) {
-//             answer = line.split('Answer:')[1].trim();
-//         } else if (line.startsWith('Explanation:')) {
-//             explanationStart = true;
-//             explanation += line.split('Explanation:')[1].trim() + ' ';
-//         } else if (explanationStart) {
-//             explanation += line + ' ';
-//         } else if (line.startsWith('A.') || line.startsWith('B.') || line.startsWith('C.') || line.startsWith('D.')) {
-//             options.push(line);
-//         } else {
-//             if (!hasQuestionFinished) {
-//                 question += line + ' ';
-//             }
-//         }
-//     }
-//    return  console.log({
-//         id: (Math.random() * 1000).toFixed(),
-//         passage: passage.trim(),
-//         question: question.trim(),
-//         options,
-//         answer,
-//         explanation: explanation.trim(),
-//         diagram: ''
-//     })
-//     return {
-//         id: (Math.random() * 1000).toFixed(),
-//         passage: passage.trim(),
-//         question: question.trim(),
-//         options,
-//         answer,
-//         explanation: explanation.trim(),
-//         diagram: ''
-//     };
-// }
-
-
-
-// Function to enhance math formatting in the extracted text
 const enhanceMathFormatting = (text) => {
     const superscriptMap = {
         '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
@@ -1541,6 +1619,8 @@ const enhanceMathFormatting = (text) => {
         { regex: /(\d+)\s*degrees/g, replacement: '$1°' },
         { regex: /(\d+)\s*\*\s*(\d+)/g, replacement: '$1 × $2' },
         { regex: /(\d+)\s*degrees/g, replacement: '$1°' },
+        // { regex: /(\d+)\s*\/\s*(\d+)/g, replacement: "<sup>$1</sup>&frasl;<sub>$2</sub>" },
+
 
 
     ];
@@ -1552,50 +1632,6 @@ const enhanceMathFormatting = (text) => {
     return text;
 };
 
-
-
-async function extractDiagramFromPDF(pdfDoc, question) {
-    const extractedDiagrams = [];
-
-    try {
-        const pages = pdfDoc.getPages();
-
-        for (let i = 0; i < pages.length; i++) {
-            const page = pages[i];
-            const resources = page.node.Resources();
-
-            if (resources) {
-                const xObjects = resources.XObject();
-                if (xObjects) {
-                    for (const [key, value] of Object.entries(xObjects)) {
-                        console.log(`XObject Key: ${key}, Value Type: ${value.constructor.name}`);
-
-                        if (value.constructor.name === 'PDFRawStream') {
-
-                            const rawImage = await value.contents();
-                            const imageBuffer = rawImage.getBytes();
-                            const base64Image = `data:image/jpeg;base64,${Buffer.from(imageBuffer).toString('base64')}`;
-                            const imagePath = path.join(__dirname, '..', '..', 'QAUploads', `${question.replace(/\s+/g, '_')}_image_${i + 1}.jpg`);
-                            writeFileSync(imagePath, Buffer.from(imageBuffer));
-                            extractedDiagrams.push(imagePath);
-                        } else {
-                            console.log(`Non-image XObject: ${key}, Type: ${value.constructor.name}`);
-                        }
-                    }
-                } else {
-                    console.log(`No XObjects found on Page ${i + 1}`);
-                }
-            }
-        }
-        return extractedDiagrams.length > 0 ? extractedDiagrams[0] : undefined;
-
-    } catch (error) {
-        console.error('Error extracting diagrams:', error);
-        return undefined;
-    }
-}
-
-// parseQuestions2(text_data)
 
 app.post('/uploadImages', UploadImages.single('file'), async (req, res, next) => {
     if (!req.file) {
@@ -1609,7 +1645,7 @@ app.post('/uploadImages', UploadImages.single('file'), async (req, res, next) =>
 
 app.post('/saveTest', async (req, res, next) => {
     const testData = req.body;
-    const newTest = new Test(testData);
+    const newTest = await new Test(testData);
     newTest.save()
         .then(result => {
             res.json(result);
@@ -1619,6 +1655,67 @@ app.post('/saveTest', async (req, res, next) => {
             console.log(error);
         })
 });
+
+
+app.post('/saveQuestion', async (req, res, next) => {
+    const data = req.body;
+    console.log('question data', data)
+    const newQuestion = new Question(data);
+    newQuestion.save()
+        .then(result => {
+            res.json(data);
+            console.log(result);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+});
+app.post('/EditQuestion', async (req, res, next) => {
+    const data = req.body;
+    const updatedQuestion = await Question.findByIdAndUpdate(
+        data._id,
+        data,
+        { new: true, runValidators: true, overwrite: true })
+    updatedQuestion.save()
+        .then(result => {
+            res.json(data);
+            console.log(result);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+});
+app.post('/terminateQuestion', async (req, res, next) => {
+    const data = req.body;
+    Question.deleteOne({ _id: data._id })
+        .then(result => {
+            console.log(result);
+            res.json(result);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+});
+app.get('/getAllQuestions/:adminId', async (req, res, next) => {
+    Question.find({ adminId: req.params.adminId })
+        .then(result => {
+            console.log(result);
+            return res.json(result);
+
+        })
+        .catch(error => {
+            console.log(error);
+        })
+})
+app.get('/superAdmin_getAllQuestions', async (req, res, next) => {
+    Question.find({})
+        .then(result => {
+            res.json(result);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+})
 app.get('/allTests', async (req, res, next) => {
     Test.find({})
         .then(result => {
@@ -1693,7 +1790,7 @@ app.post('/submitTest', async (req, res, next) => {
     }
 });
 
-app.get('/clearUsers', async (req, res, next) => {
+app.get('/clear', async (req, res, next) => {
     User.deleteMany({})
         .then(result => {
             console.log(result);
@@ -1703,9 +1800,8 @@ app.get('/clearUsers', async (req, res, next) => {
             console.log(error);
         })
 })
-
-app.get('/clearTests', async (req, res, next) => {
-    Test.deleteMany({})
+app.get('/clearQ', async (req, res, next) => {
+    Question.deleteMany({})
         .then(result => {
             console.log(result);
             res.json(result);
@@ -1714,6 +1810,7 @@ app.get('/clearTests', async (req, res, next) => {
             console.log(error);
         })
 })
+
 app.get('/getUsers', async (req, res, next) => {
     User.find({})
         .then(result => {
