@@ -985,7 +985,7 @@ const openai = new OpenAI({
 
 app.post('/extractText', UploadImages.single('file'), async (req, res) => {
     try {
-        const imagePath = path.join(__dirname, '..', '..', 'images', req.file.filename);
+        const imagePath = path.join(__dirname, '..', '..', 'Images', req.file.filename);
         const imageBuffer = fs.readFileSync(imagePath);
         const base64Image = imageBuffer.toString('base64');
 
@@ -1057,7 +1057,7 @@ Only return the JSON with proper latex for maths. Ensure LaTeX syntax is clean a
 });
 app.post('/extractTextWithoutAi', UploadImages.single('file'), async (req, res) => {
     console.log('without ai working')
-    const imagePath = path.join(__dirname, '..', '..', 'images', req.file.filename);
+    const imagePath = path.join(__dirname, '..', '..', 'Images', req.file.filename);
     const imageBuffer = fs.readFileSync(imagePath);
     // const base64Image = imageBuffer.toString('base64');
     const data = await extractTextFromImages([imagePath], res)
