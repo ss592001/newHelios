@@ -983,6 +983,83 @@ const openai = new OpenAI({
     apiKey: process.env.AiKey
 });
 
+app.post('/extractSnippingText', async (req, res) => {
+    try {
+        const base64Image = req.body.base64Image; // Expect the full data URL: "data:image/png;base64,...."
+        console.log('url', base64Image)
+
+        if (!base64Image || !base64Image.startsWith('data:image')) {
+            return res.status(400).json({ error: 'Invalid or missing base64Image in request body' });
+        }
+
+        // Extract base64 string (remove "data:image/png;base64," prefix)
+        const base64Data = base64Image.split(',')[1];
+
+        // Send to OpenAI
+        const result = await openai.chat.completions.create({
+            model: 'gpt-4.1',
+            response_format: { type: 'json_object' },
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are an OCR and question parser tool. Extract the full text from the image, including any passage, question, and answer options. If mathematical expressions are present, preserve them as LaTeX.
+
+- Use $...$ for inline LaTeX.
+- Use $$...$$ for block LaTeX (especially in explanations).
+- Do not escape backslashes (use \, not \\ that is do not use double slash in LaTex). 
+- Return your result in the following JSON format:
+
+{
+  "id": "random 10-character alphanumeric string",
+  "title": "A short descriptive title",
+  "tags": ["add suitable tags like 'algebra', 'geometry', etc. . but is is compulsory to add a tag either english ar maths based on the type of questions"],
+  "passage": "Extracted passage if any, otherwise keep as an empty string with Latex",
+  "question": "The main question extracted from the image with Latex ",
+  "options": [
+    "A. option text with LaTex",
+    "B. option text with LaTex",
+    "C. option text with LaTex",
+    "D. option text with LaTex"
+  ],
+  "answer": "Correct option letter (e.g., 'A')",
+  "explanation": "Step-by-step explanation using LaTeX. Use $$...$$ for block LaTeX.",
+  "diagram": "",
+  "type": "objective",
+  "difficulty": "easy"
+}
+
+Only return the JSON with proper latex for maths. Ensure LaTeX syntax is clean and unescaped. Do not include any extra commentary or markdown. Also remove all \n and \\ . Modify the data to display on the website using mathJx. Please do not skip the latex syntax for maths and depict fraction in the syntax $\frac{2}{5}$ and before returning the extracted the text, please recheck that each latex produced is correct to will be rendered perfectly. Always enclose LaTeX with $ like this $\frac{2}{5}$ and use only single slashes in the LaTeX.`
+                },
+                {
+                    role: 'user',
+                    content: [
+                        {
+                            type: 'image_url',
+                            image_url: {
+                                url: `data:image/png;base64,${base64Data}`
+                            }
+                        },
+                        {
+                            type: 'text',
+                            text: 'Extract text and make sure mathematical expressions remain intact and return structured JSON.'
+                        }
+                    ]
+                }
+            ],
+            max_tokens: 10000,
+            store: true
+        });
+
+        // Parse JSON response
+        const jsonResponse = JSON.parse(result.choices[0].message.content);
+
+        res.json(jsonResponse);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Failed to process image.' });
+    }
+});
+
 app.post('/extractText', UploadImages.single('file'), async (req, res) => {
     try {
         const imagePath = path.join(__dirname, '..', '..', 'Images', req.file.filename);
@@ -1005,7 +1082,7 @@ app.post('/extractText', UploadImages.single('file'), async (req, res) => {
 {
   "id": "random 10-character alphanumeric string",
   "title": "A short descriptive title",
-  "tags": ["add suitable tags like 'algebra', 'geometry', etc."],
+  "tags": ["add suitable tags like 'algebra', 'geometry', etc. but is is compulsory to add a tag either english ar maths based on the type of questions"],
   "passage": "Extracted passage if any, otherwise keep as an empty string with Latex",
   "question": "The main question extracted from the image with Latex ",
   "options": [
@@ -1055,6 +1132,80 @@ Only return the JSON with proper latex for maths. Ensure LaTeX syntax is clean a
         res.status(500).json({ error: 'Failed to process image.' });
     }
 });
+
+
+// app.post('/extractText', UploadImages.single('file'), async (req, res) => {
+//     try {
+//         const imagePath = path.join(__dirname, '..', '..', 'Images', req.file.filename);
+//         const imageBuffer = fs.readFileSync(imagePath);
+//         const base64Image = imageBuffer.toString('base64');
+
+//         const result = await openai.chat.completions.create({
+//             model: 'gpt-4.1',
+//             response_format: { "type": "json_object" },
+//             messages: [
+//                 {
+//                     role: 'system',
+//                     content: `You are an OCR and question parser tool. Extract the full text from the image, including any passage, question, and answer options. If mathematical expressions are present, preserve them as LaTeX.
+
+// - Use $...$ for inline LaTeX.
+// - Use $$...$$ for block LaTeX (especially in explanations).
+// - Do not escape backslashes (use \, not \\ that is do not use double slash in LaTex insted replace them with single slash \). 
+// - Return your result in the following JSON format:
+
+// {
+//   "id": "random 10-character alphanumeric string",
+//   "title": "A short descriptive title",
+//   "tags": ["add suitable tags like 'algebra', 'geometry', etc."],
+//   "passage": "Extracted passage if any, otherwise keep as an empty string with Latex",
+//   "question": "The main question extracted from the image with Latex ",
+//   "options": [
+//     "A. option text with LaTex",
+//     "B. option text with LaTex",
+//     "C. option text with LaTex",
+//     "D. option text with LaTex"
+//   ],
+//   "answer": "Correct option letter (e.g., 'A')",
+//   "explanation": "Step-by-step explanation using LaTeX. Use $$...$$ for block LaTeX.",
+//   "diagram": "",
+//   "type": "objective",
+//   "difficulty": "easy"  // or "moderate", "hard" as appropriate
+// }
+
+// Only return the JSON with proper latex for maths. Ensure LaTeX syntax is clean and unescaped. Do not include any extra commentary or markdown. also remove all \n and \\ . and modify the data to display on the website using mathJx. Please do not skip the latex syntax for maths and dipict fraction in the syntax $\frac{2}{5}$ and before returning the extracted the text , please recheck that each latex produced is correct to will be rendered perfectly. always enclose laTex with $ like this $\frac{2}{5}$ and use only single slashes in the LaTex`
+//                 },
+//                 {
+//                     role: 'user',
+//                     content: [
+//                         {
+//                             type: 'image_url',
+//                             image_url: {
+//                                 url: `data:image/png;base64,${base64Image}`
+//                             }
+//                         },
+//                         {
+//                             type: 'text',
+//                             text: 'Extract text and make sure mathematical exprassions remain intact and return structured JSON.'
+//                         }
+//                     ]
+//                 }
+//             ],
+//             max_tokens: 10000,
+//             store: true
+//         });
+
+//         // Clean up uploaded file
+//         fs.unlinkSync(imagePath);
+//         console.log('json data', JSON.parse(result.choices[0].message.content))
+//         // res.json({ content: JSON.parse(result.choices[0].message.content), status: 200 }
+//         // );
+//         res.json(JSON.parse(result.choices[0].message.content)
+//         );
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).json({ error: 'Failed to process image.' });
+//     }
+// });
 app.post('/extractTextWithoutAi', UploadImages.single('file'), async (req, res) => {
     console.log('without ai working')
     const imagePath = path.join(__dirname, '..', '..', 'Images', req.file.filename);
