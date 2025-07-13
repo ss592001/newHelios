@@ -99,9 +99,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 app.post("/sendEmail", async (req, res) => {
-    console.log('working bf')
     const { name, email, phone, desc } = req.body;
-    console.log('email working af')
     const htmlContent = `
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 30px; font-family: Arial, sans-serif;">
   <tr>
