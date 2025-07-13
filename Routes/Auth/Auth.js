@@ -139,7 +139,7 @@ app.post("/sendEmail", async (req, res) => {
     const mailOptions = {
         from: 'info@rvgoprep.com',
         to: 'info@rvgoprep.com',
-        subject: 'New Enquery From RVGOPREP',
+        subject: 'New Enquiry From RVGOPREP',
         html: htmlContent,
     };
 
