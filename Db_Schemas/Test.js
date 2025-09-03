@@ -56,6 +56,10 @@ const test = new Schema({
    Flt: {
       type: Boolean,
       default: false
+   },
+   sectional: {
+      type: Number,
+      default: 0
    }
 })
 module.exports = mongoose.model('test', test);
