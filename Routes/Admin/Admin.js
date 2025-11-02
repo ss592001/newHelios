@@ -881,6 +881,35 @@ app.post('/saveTest', async (req, res, next) => {
         })
 });
 
+app.post('/saveEditedTest', async (req, res, next) => {
+    try {
+        const testData = { ...req.body }; 
+        const testId = testData._id;      
+        delete testData._id;             
+
+        if (!testId) {
+            return res.status(400).json({ error: 'Missing test _id' });
+        }
+
+        const updatedTest = await Test.findByIdAndUpdate(
+            testId,
+            { $set: testData },           
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedTest) {
+            return res.status(404).json({ error: 'Test not found' });
+        }
+
+        res.json(updatedTest);
+        console.log('Test updated:', updatedTest);
+
+    } catch (error) {
+        console.error('Error updating test:', error);
+        res.status(500).json({ error: 'Failed to update test' });
+    }
+});
+
 
 app.post('/saveQuestion', async (req, res, next) => {
     const data = req.body;
