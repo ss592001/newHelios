@@ -911,19 +911,53 @@ app.post('/saveEditedTest', async (req, res, next) => {
 });
 
 
+// app.post('/saveQuestion', async (req, res, next) => {
+//     const data = req.body;
+//     console.log('question data', data)
+//     const newQuestion = new Question(data);
+//     newQuestion.save()
+//         .then(result => {
+//             res.json(data);
+//             console.log(result);
+//         })
+//         .catch(error => {
+//             console.log(error);
+//         })
+// });
+
+//     const data = req.body;
+//     console.log('question data', data)
+//     const newQuestion = new Question(data);
+//     newQuestion.save()
+//         .then(result => {
+//             res.json(data);
+//             console.log(result);
+//         })
+//         .catch(error => {
+//             console.log(error);
+//         })
+// });
+
+const mongoose = require('mongoose');
 app.post('/saveQuestion', async (req, res, next) => {
-    const data = req.body;
-    console.log('question data', data)
-    const newQuestion = new Question(data);
-    newQuestion.save()
-        .then(result => {
-            res.json(data);
-            console.log(result);
-        })
-        .catch(error => {
-            console.log(error);
-        })
+    try {
+        const data = req.body;
+
+        // Update the id key to a new ObjectId
+        data.id = new mongoose.Types.ObjectId();
+
+        console.log("Updated question data:", data);
+
+        const newQuestion = new Question(data);
+        const result = await newQuestion.save();
+
+        res.json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Something went wrong' });
+    }
 });
+
 app.post('/EditQuestion', async (req, res, next) => {
     const data = req.body;
     const updatedQuestion = await Question.findByIdAndUpdate(
