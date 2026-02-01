@@ -12,9 +12,16 @@ const MongoDbStore = require('connect-mongodb-session')(Session);
 const mongoose = require('mongoose');
 const AuthRoutes = require('./Routes/Auth/Auth');
 const AdminRoutes=require('./Routes/Admin/Admin')
+// Rvgo
+// const options = {
+//   key: fs.readFileSync("/etc/letsencrypt/live/srv749425.hstgr.cloud/privkey.pem"),
+//   cert: fs.readFileSync("/etc/letsencrypt/live/srv749425.hstgr.cloud/fullchain.pem"),
+// };
+
+// Buzz
 const options = {
-  key: fs.readFileSync("/etc/letsencrypt/live/srv749425.hstgr.cloud/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/srv749425.hstgr.cloud/fullchain.pem"),
+  key: fs.readFileSync("/etc/letsencrypt/live/srv1295924.hstgr.cloud/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/srv1295924.hstgr.cloud/fullchain.pem"),
 };
 const mongoUrl = process.env.DbUrl; 
 const Store = new MongoDbStore({
