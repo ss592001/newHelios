@@ -1,5 +1,5 @@
-// const https=require('https')
-const http = require("http");
+const https=require('https')
+// const http = require("http");
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -61,27 +61,27 @@ app.use(AdminRoutes)
 app.use('/QAUploads', express.static(path.join(__dirname, 'QAUploads')));
 app.use('/Images', express.static(path.join(__dirname, 'Images')));
 
-// mongoose.connect(mongoUrl)
-//    .then(result => {
-//        https.createServer(options,app)
-//       .listen(3008);
-//       console.log("connected to db and terminal at 3008");
-//       console.log("Running on Node.js version:", process.version);
-//    })
+mongoose.connect(mongoUrl)
+   .then(result => {
+       https.createServer(options,app)
+      .listen(3008);
+      console.log("connected to db and terminal at 3008");
+      console.log("Running on Node.js version:", process.version);
+   })
 
-mongoose
-.connect(mongoUrl)
-.then(() => {
-const PORT = 3008;
-http.createServer(app).listen(PORT, () => {
-console.log(`HTTP server running on port ${PORT}`);
-console.log("connected to db");
-console.log("Running on Node.js version:", process.version);
-});
-})
-.catch(err => {
-console.error("Mongo connection error:", err);
-});
+// mongoose
+// .connect(mongoUrl)
+// .then(() => {
+// const PORT = 3008;
+// http.createServer(app).listen(PORT, () => {
+// console.log(`HTTP server running on port ${PORT}`);
+// console.log("connected to db");
+// console.log("Running on Node.js version:", process.version);
+// });
+// })
+// .catch(err => {
+// console.error("Mongo connection error:", err);
+// });
 
 // const https = require('https')
 // const express = require('express');
