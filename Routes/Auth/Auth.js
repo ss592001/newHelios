@@ -182,22 +182,22 @@ app.get('/login/:email/:password', async (req, res, next) => {
     const email = req.params.email;
     const password = req.params.password;
     // Rvgo
-    // const xactEmail = email === 'root.rvgo@gmail.com' ? 'root.rvgo@gmail.com' : 'temp@gmail.com';
-    // if ((email === 'root.rvgo@gmail.com' && password === 'rvgo@2025')
-    //     || (email === 'temp@gmail.com' && password === 'temp_root_access')) {
-    //     return res.json({
-    //         auth: true, type: "admin", data: { _id: "682a069dabdf121fa26d3e68", email: xactEmail }
-    //     })
-    // }
-
-    // Buzzai
-     const xactEmail = email === 'root.buzzai@gmail.com' ? 'root.buzzai@gmail.com' : 'temp@gmail.com';
-    if ((email === 'root.buzzai@gmail.com' && password === 'Buzzaicloud@2026')
+    const xactEmail = email === 'root.rvgo@gmail.com' ? 'root.rvgo@gmail.com' : 'temp@gmail.com';
+    if ((email === 'root.rvgo@gmail.com' && password === 'rvgo@2025')
         || (email === 'temp@gmail.com' && password === 'temp_root_access')) {
         return res.json({
             auth: true, type: "admin", data: { _id: "682a069dabdf121fa26d3e68", email: xactEmail }
         })
     }
+
+    // Buzzai
+    //  const xactEmail = email === 'root.buzzai@gmail.com' ? 'root.buzzai@gmail.com' : 'temp@gmail.com';
+    // if ((email === 'root.buzzai@gmail.com' && password === 'Buzzaicloud@2026')
+    //     || (email === 'temp@gmail.com' && password === 'temp_root_access')) {
+    //     return res.json({
+    //         auth: true, type: "admin", data: { _id: "682a069dabdf121fa26d3e68", email: xactEmail }
+    //     })
+    // }
     
     const usr = await User.findOne({ email: email });
     if (usr !== null) {
