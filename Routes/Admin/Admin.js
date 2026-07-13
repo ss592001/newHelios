@@ -115,10 +115,10 @@ JSON FORMAT REQUIRED
    "passage":"<p>Passage text here with formatting and LaTeX like \\(x^2+y^2=1\\)</p>",
    "question":"<p>Question text here with formatting and LaTeX like \\(x^2+y^2=1\\)</p>",
    "options":[
-      "A. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>",
-      "B. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>",
-      "C. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>",
-      "D. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>"
+      "A. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)",
+      "B. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)",
+      "C. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)",
+      "D. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)"
    ],
    "answer":"A Or B Or C Or D if objective else the given answer in subjective",
    "explanation":"<p>Explanation text if visible otherwise empty string</p>",
@@ -132,7 +132,7 @@ JSON FORMAT REQUIRED
 HTML RULES
 -----------------------------------
 
-Use HTML tags where needed:
+Use HTML tags where needed except in options:
 <p>, <b>, <i>, <u>, <br>, <sup>, <sub>, <table>, <tr>, <td>, <ul>, <ol>, <li>, <span>
 
 Examples:
@@ -286,10 +286,10 @@ JSON FORMAT REQUIRED
    "passage":"<p>Passage text here with formatting and LaTeX like \\(x^2+y^2=1\\)</p>",
    "question":"<p>Question text here with formatting and LaTeX like \\(x^2+y^2=1\\)</p>",
    "options":[
-      "A. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>",
-      "B. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>",
-      "C. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>",
-      "D. <span>Option text with formatting and LaTeX like \\(x^2+y^2=1\\)</span>"
+      "A. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)",
+      "B. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)",
+      "C. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)",
+      "D. Option text with formatting and LaTeX like \\(x^2+y^2=1\\)"
    ],
    "answer":"A Or B Or C Or D if objective else the given answer in subjective",
    "explanation":"<p>Explanation text if visible otherwise empty string</p>",
@@ -303,7 +303,7 @@ JSON FORMAT REQUIRED
 HTML RULES
 -----------------------------------
 
-Use HTML tags where needed:
+Use HTML tags where needed except in options:
 <p>, <b>, <i>, <u>, <br>, <sup>, <sub>, <table>, <tr>, <td>, <ul>, <ol>, <li>, <span>
 
 Examples:
